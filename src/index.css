@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌿 Modern UI Base Styles */
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-gray-50 text-gray-700 antialiased;
+  background-attachment: fixed;
+}
+
+/* Base Card Style */
+.card-style {
+  @apply bg-white border border-gray-200 rounded-2xl shadow-sm transition-all duration-300;
+}
+.card-style:hover {
+  @apply shadow-lg border-gray-300;
+}
+
+/* Typography */
+h1, h2, h3 {
+  @apply font-bold text-gray-800;
+}
+
+/* Input Fields */
+input, select, textarea {
+  @apply bg-white border border-gray-300 rounded-lg px-4 py-2 w-full transition-colors duration-200;
+}
+input:focus, select:focus, textarea:focus {
+  @apply border-green-500 ring-2 ring-green-100 outline-none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-green-600 rounded-full;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+

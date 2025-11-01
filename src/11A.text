@@ -1,0 +1,2217 @@
+import React from "react";
+import { motion } from "framer-motion";
+
+const ActionButton = ({ label, Icon, onClick, title }) => (
+  <motion.button
+    onClick={onClick}
+    // ✨ FIX: Added a fixed width (w-32) to match the height (h-32) and make the button a perfect square.
+    className="flex flex-col items-center justify-center p-4 rounded-xl shadow-md bg-gradient-to-br from-green-600 to-green-500 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 h-32 w-32"
+    title={title || label}
+    whileHover={{ scale: 1.05, y: -4 }}
+    whileTap={{ scale: 0.95 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <Icon className="h-8 w-8 mb-2" />
+    <span className="text-sm text-center">
+      {label}
+    </span>
+  </motion.button>
+);
+
+export default ActionButton;
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ExclamationTriangleIcon, InformationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+
+const alertConfig = {
+  critical: {
+    icon: ExclamationTriangleIcon,
+    bgClass: 'bg-red-100 border-red-500 text-red-800',
+    iconClass: 'text-red-500',
+  },
+  warning: {
+    icon: ExclamationTriangleIcon,
+    bgClass: 'bg-yellow-100 border-yellow-500 text-yellow-800',
+    iconClass: 'text-yellow-500',
+  },
+  info: {
+    icon: InformationCircleIcon,
+    bgClass: 'bg-blue-100 border-blue-500 text-blue-800',
+    iconClass: 'text-blue-500',
+  },
+};
+
+const Alerts = ({ alerts, t }) => {
+  const hasAlerts = alerts && alerts.length > 0;
+
+  return (
+    <div className="mb-8">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('alerts_title')}</h2>
+      <div className="space-y-3">
+        <AnimatePresence mode="wait">
+          {hasAlerts ? (
+            // This part runs when there ARE alerts
+            alerts.map((alert) => {
+              const config = alertConfig[alert.type] || alertConfig.info;
+              const Icon = config.icon;
+
+              return (
+                <motion.div
+                  key={alert.id}
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={`border-l-4 p-4 rounded-r-lg ${config.bgClass}`}
+                  role="alert"
+                >
+                  <div className="flex">
+                    <div className="py-1">
+                      <Icon className={`h-6 w-6 ${config.iconClass}`} />
+                    </div>
+                    <div className="ml-3">
+                      <p className="font-semibold">{t(alert.messageKey)}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
+          ) : (
+            // ✨ NEW: This part runs when there are NO alerts
+            <motion.div
+              key="no-alerts"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="border-l-4 p-4 rounded-r-lg bg-green-100 border-green-500 text-green-800"
+              role="status"
+            >
+              <div className="flex">
+                <div className="py-1">
+                  <CheckCircleIcon className="h-6 w-6 text-green-500" />
+                </div>
+                <div className="ml-3">
+                  <p className="font-semibold">{t('no_alerts_message')}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default Alerts;
+
+import React from 'react';
+
+// ✨ NEW: Accept the full profileData object
+const HeaderCard = ({ t, profileData }) => {
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  // ✨ NEW: Use the translated welcome message and insert the farmer's name
+  const welcomeMessage = t('welcome_back_message', { name: profileData.name });
+
+  return (
+    <div className="mb-8 p-6 bg-white rounded-xl shadow-md border border-gray-200">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">{welcomeMessage}</h2>
+          <p className="text-gray-500">Here's your farm's status for {currentDate}.</p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-semibold text-green-600">System Status</p>
+          <p className="text-sm text-gray-500">All sensors are online.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HeaderCard;
+import React from 'react';
+
+const Logo = ({ className }) => {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
+      <path
+        d="M50 95C25.1472 95 5 74.8528 5 50C5 25.1472 25.1472 5 50 5C74.8528 5 95 25.1472 95 50C95 74.8528 74.8528 95 50 95Z"
+        className="stroke-green-200"
+        strokeWidth="4"
+      />
+      <path
+        d="M65 80C65 65 58 62 50 50C42 62 35 65 35 80"
+        className="stroke-green-600"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M50 55V30"
+        className="stroke-green-600"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M50 30C50 30 55 25 60 30"
+        className="stroke-green-500"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M50 30C50 30 45 25 40 30"
+        className="stroke-green-500"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export default Logo;
+import React from "react";
+import { LineChart, Line, YAxis, ResponsiveContainer } from 'recharts';
+import { WiThermometer, WiHumidity, WiRaindrop } from "react-icons/wi";
+
+const mockData = [
+  { value: 48 }, { value: 46 }, { value: 50 },
+  { value: 47 }, { value: 49 }, { value: 45 },
+];
+
+// ✨ NEW: A styled component for our text-based icons (N, P, K, pH)
+const TextIcon = ({ children, color }) => (
+  <div className={`font-bold text-3xl ${color}`}>
+    {children}
+  </div>
+);
+
+const SensorCard = ({ title, value, unit, icon: iconName }) => {
+  const renderIcon = () => {
+    // ✨ NEW: Added cases for ph, nitrogen, phosphorus, and potassium
+    switch (iconName) {
+      case 'temperature': return <WiThermometer className="text-red-500" />;
+      case 'humidity': return <WiHumidity className="text-blue-500" />;
+      case 'moisture': return <WiRaindrop className="text-cyan-500" />;
+      case 'ph': return <TextIcon color="text-purple-500">pH</TextIcon>;
+      case 'nitrogen': return <TextIcon color="text-orange-500">N</TextIcon>;
+      case 'phosphorus': return <TextIcon color="text-indigo-500">P</TextIcon>;
+      case 'potassium': return <TextIcon color="text-yellow-600">K</TextIcon>;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="card-style p-4 flex flex-col justify-between overflow-hidden">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="text-5xl mr-3 w-12 text-center float-animate">
+            {renderIcon()}
+          </div>
+          <div>
+            <div className="text-xs font-medium text-gray-500 uppercase">{title}</div>
+            <div className="flex items-end mt-1">
+              <p className="text-2xl font-bold text-gray-900">{value}</p>
+              <p className="text-sm text-gray-500 ml-1 mb-px">{unit}</p>
+            </div>
+          </div>
+        </div>
+        <div className="text-xs text-green-600 font-semibold">Live</div>
+      </div>
+      <div className="mt-4 h-20">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={mockData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+            <Line type="monotone" dataKey="value" stroke="#16a34a" strokeWidth={2.5} dot={false} />
+            <YAxis hide={true} domain={['dataMin - 5', 'dataMax + 5']} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+export default SensorCard;
+import React from "react";
+import { LineChart, Line, YAxis, ResponsiveContainer } from 'recharts';
+import { WiThermometer, WiHumidity, WiRaindrop } from "react-icons/wi";
+
+const mockData = [
+  { value: 48 }, { value: 46 }, { value: 50 },
+  { value: 47 }, { value: 49 }, { value: 45 },
+];
+
+// ✨ NEW: A styled component for our text-based icons (N, P, K, pH)
+const TextIcon = ({ children, color }) => (
+  <div className={`font-bold text-3xl ${color}`}>
+    {children}
+  </div>
+);
+
+const SensorCard = ({ title, value, unit, icon: iconName }) => {
+  const renderIcon = () => {
+    // ✨ NEW: Added cases for ph, nitrogen, phosphorus, and potassium
+    switch (iconName) {
+      case 'temperature': return <WiThermometer className="text-red-500" />;
+      case 'humidity': return <WiHumidity className="text-blue-500" />;
+      case 'moisture': return <WiRaindrop className="text-cyan-500" />;
+      case 'ph': return <TextIcon color="text-purple-500">pH</TextIcon>;
+      case 'nitrogen': return <TextIcon color="text-orange-500">N</TextIcon>;
+      case 'phosphorus': return <TextIcon color="text-indigo-500">P</TextIcon>;
+      case 'potassium': return <TextIcon color="text-yellow-600">K</TextIcon>;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="card-style p-4 flex flex-col justify-between overflow-hidden">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="text-5xl mr-3 w-12 text-center float-animate">
+            {renderIcon()}
+          </div>
+          <div>
+            <div className="text-xs font-medium text-gray-500 uppercase">{title}</div>
+            <div className="flex items-end mt-1">
+              <p className="text-2xl font-bold text-gray-900">{value}</p>
+              <p className="text-sm text-gray-500 ml-1 mb-px">{unit}</p>
+            </div>
+          </div>
+        </div>
+        <div className="text-xs text-green-600 font-semibold">Live</div>
+      </div>
+      <div className="mt-4 h-20">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={mockData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+            <Line type="monotone" dataKey="value" stroke="#16a34a" strokeWidth={2.5} dot={false} />
+            <YAxis hide={true} domain={['dataMin - 5', 'dataMax + 5']} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+export default SensorCard;
+import React from "react";
+import { FaLinkedin, FaGithub } from "react-icons/fa";
+
+const teamMembers = [
+  {
+    name: "Prof. Anjali Deshmukh",
+    role: "Project Guide",
+    work: "Mentor & advisor, guided the project implementation.",
+    photo: "/images/professor.jpg",
+    linkedin: "https://linkedin.com/in/anjali",
+  },
+  {
+    name: "Omkar Patil",
+    role: "Frontend Developer",
+    work: "Developed UI and integrated multi-language support.",
+    photo: "/images/omkar.jpg", 
+    linkedin: "https://linkedin.com/in/omkar",
+    github: "https://github.com/omkar",
+  },
+  {
+    name: "Sneha Sharma",
+    role: "ML Engineer",
+    work: "Built crop recommendation and plant disease detection models.",
+    photo: "/images/sneha.jpg",
+    linkedin: "https://linkedin.com/in/sneha",
+    github: "https://github.com/sneha",
+  },
+  {
+    name: "Raj Verma",
+    role: "IoT Engineer",
+    work: "Integrated soil and weather sensors with backend.",
+    photo: "/images/raj.jpg",
+    linkedin: "https://linkedin.com/in/raj",
+    github: "https://github.com/raj",
+  },
+];
+
+// ✨ NEW: We separate the professor from the rest of the team to style them differently.
+const professor = teamMembers[0];
+const students = teamMembers.slice(1);
+
+const Team = () => {
+  return (
+    <div className="p-8">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold text-gray-800">
+          Meet Our Team
+        </h2>
+        <p className="text-gray-500 mt-2">The dedicated people behind this project.</p>
+      </div>
+
+      {/* ✨ NEW: A dedicated section for the professor, centered on large screens. */}
+      <div className="flex justify-center mb-10">
+        <div
+          className="bg-green-50 rounded-lg border border-green-200 p-6 flex flex-col items-center text-center shadow-lg transition-shadow duration-300 hover:shadow-xl w-full max-w-sm relative overflow-hidden"
+        >
+          {/* ✨ NEW: A small "Guide" badge to highlight the role. */}
+          <div className="absolute top-2 right-[-30px] bg-green-500 text-white text-xs font-bold px-8 py-1 transform rotate-45">
+            Guide
+          </div>
+          <img
+            src={professor.photo}
+            alt={professor.name}
+            className="w-28 h-28 rounded-full object-cover mb-4 border-4 border-white"
+          />
+          <h3 className="text-xl font-semibold text-gray-900">{professor.name}</h3>
+          <p className="text-sm font-medium text-green-700">{professor.role}</p>
+          <p className="text-sm text-gray-600 mt-3 flex-grow">{professor.work}</p>
+
+          <div className="flex space-x-4 mt-6 pt-4 border-t border-green-200 w-full justify-center">
+            {professor.linkedin && (
+              <a
+                href={professor.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-blue-600 transition-colors"
+              >
+                <FaLinkedin size={22} />
+              </a>
+            )}
+            {professor.github && (
+              <a
+                href={professor.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-800 transition-colors"
+              >
+                <FaGithub size={22} />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ✨ NEW: A separate grid for the other team members. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {students.map((member, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col items-center text-center shadow-sm transition-shadow duration-300 hover:shadow-lg"
+          >
+            <img
+              src={member.photo}
+              alt={member.name}
+              className="w-28 h-28 rounded-full object-cover mb-4"
+            />
+            <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
+            <p className="text-sm font-medium text-green-600">{member.role}</p>
+            <p className="text-sm text-gray-600 mt-3 flex-grow">{member.work}</p>
+
+            <div className="flex space-x-4 mt-6 pt-4 border-t border-gray-200 w-full justify-center">
+              {member.linkedin && (
+                <a
+                  href={member.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-blue-600 transition-colors"
+                >
+                  <FaLinkedin size={22} />
+                </a>
+              )}
+              {member.github && (
+                <a
+                  href={member.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-gray-800 transition-colors"
+                >
+                  <FaGithub size={22} />
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Team;
+export const cropData = [
+  // Rice
+  { N: 90, P: 42, K: 43, temperature: 20.87, humidity: 82.00, ph: 6.50, rainfall: 202.9, label: 'Rice', season: 'Kharif' },
+  { N: 85, P: 58, K: 41, temperature: 21.77, humidity: 80.31, ph: 7.03, rainfall: 226.7, label: 'Rice', season: 'Kharif' },
+  { N: 60, P: 55, K: 44, temperature: 23.00, humidity: 83.32, ph: 5.92, rainfall: 263.9, label: 'Rice', season: 'Kharif' },
+  
+  // Maize
+  { N: 75, P: 48, K: 19, temperature: 22.3, humidity: 65.0, ph: 6.0, rainfall: 80.0, label: 'Maize', season: 'Kharif' },
+  { N: 80, P: 50, K: 22, temperature: 24.5, humidity: 70.0, ph: 6.5, rainfall: 100.0, label: 'Maize', season: 'Zaid' },
+  { N: 70, P: 45, K: 20, temperature: 21.0, humidity: 60.0, ph: 5.8, rainfall: 75.0, label: 'Maize', season: 'Rabi' },
+
+  // Wheat
+  { N: 120, P: 60, K: 40, temperature: 15.5, humidity: 70.0, ph: 6.5, rainfall: 80.0, label: 'Wheat', season: 'Rabi' },
+  { N: 130, P: 65, K: 45, temperature: 17.0, humidity: 75.0, ph: 7.0, rainfall: 90.0, label: 'Wheat', season: 'Rabi' },
+
+  // Potato
+  { N: 100, P: 40, K: 120, temperature: 18.0, humidity: 85.0, ph: 5.5, rainfall: 60.0, label: 'Potato', season: 'Rabi' },
+  { N: 110, P: 45, K: 130, temperature: 20.0, humidity: 90.0, ph: 6.0, rainfall: 70.0, label: 'Potato', season: 'Rabi' },
+
+  // Groundnut
+  { N: 20, P: 40, K: 60, temperature: 28.0, humidity: 60.0, ph: 6.0, rainfall: 100.0, label: 'Groundnut', season: 'Kharif' },
+  
+  // Sugarcane
+  { N: 150, P: 60, K: 120, temperature: 27.0, humidity: 80.0, ph: 6.5, rainfall: 1200.0, label: 'Sugarcane', season: 'Kharif' },
+
+  // Barley
+  { N: 70, P: 40, K: 30, temperature: 15.0, humidity: 65.0, ph: 6.0, rainfall: 40.0, label: 'Barley', season: 'Rabi' },
+  
+  // Millets
+  { N: 40, P: 20, K: 20, temperature: 30.0, humidity: 50.0, ph: 6.0, rainfall: 50.0, label: 'Millets', season: 'Kharif' },
+];
+export const INDIAN_LANGUAGES = [
+  { code: "en", name: "English" },
+  { code: "hi", name: "हिंदी (Hindi)" },
+  { code: "mr", name: "मराठी (Marathi)" },
+  { code: "te", name: "తెలుగు (Telugu)" },
+  { code: "ta", name: "தமிழ் (Tamil)" },
+  { code: "gu", name: "ગુજરાતી (Gujarati)" },
+  { code: "kn", name: "ಕನ್ನಡ (Kannada)" },
+  { code: "bn", name: "বাংলা (Bengali)" },
+  { code: "pa", name: "ਪੰਜਾਬੀ (Punjabi)" },
+  { code: "ml", name: "മലയാളം (Malayalam)" },
+  { code: "cg", name: "छत्तीसगढ़ी (Chhattisgarhi)" },
+  { code: "or", name: "ଓଡ଼ିଆ (Odia)" },
+  { code: "ur", name: "اُردُو (Urdu)" },
+  { code: "as", name: "অসমীয়া (Assamese)" },
+  { code: "kok", name: "कोंकणी (Konkani)" },
+  { code: "ks", name: "كٲشُر (Kashmiri)" },
+  { code: "mni", name: "ꯃꯤꯇꯩꯂꯣꯟ (Manipuri)" }
+];
+import { useMemo } from "react";
+
+// 🌾 Base English Translations
+const baseTranslation = {
+  // Alerts Section
+  alerts_title: "System Alerts",
+  no_alerts_message: "All systems are normal. No alerts to show.",
+  alert_low_moisture: "Urgent irrigation required. Soil moisture is critically low.",
+  alert_high_ph: "High soil pH detected. This may affect nutrient absorption.",
+  alert_low_nitrogen: "Low nitrogen levels detected. Consider applying fertilizer.",
+
+  // Dashboard & Welcome Message
+  welcome_back_message: "Welcome Back, {name}!", 
+  
+  // Dashboard & Sensor Readings
+  actions_heading: "Actions",
+  node: "Node:",
+  field_id: "Field 1: Wheat (Node ID: A1B2C3D4)",
+  readings_header: "Live Sensor Readings",
+  moisture: "Soil Moisture",
+  temperature: "Air Temperature",
+  humidity: "Air Humidity",
+  soil_ph: "Soil pH",
+  nitrogen: "Nitrogen (N)",
+  phosphorus: "Phosphorus (P)",
+  potassium: "Potassium (K)",
+  unit_percent: "%",
+  unit_celsius: "°C",
+  unit_kg_ha: "kg/ha",
+
+  // Action Buttons
+  action_irrigate: "Irrigate Now",
+  action_market: "Market Value",
+  action_news: "News & Schemes",
+  action_community: "Community Forum",
+  action_chatbot: "Smart Assistant",
+  action_calculator: "Fertilizer Calculator",
+  action_diagnosis: "Plant Diagnosis",
+  action_advisor: "Crop Advisor",
+  action_weather: "Weather",
+  action_profile: "Profile",
+
+  // 🌾 Farming Tips
+  farming_tips: "Farming Tips",
+  tip1: "Check soil moisture daily before irrigation.",
+  tip2: "Use organic manure to improve soil fertility.",
+  tip3: "Avoid overwatering — it can damage crop roots.",
+  tip4: "Rotate crops every season to maintain soil nutrients.",
+  tip5: "Monitor weather updates for pest control planning.",
+
+  // 🛒 Market Trends
+  market_trends: "Market Trends",
+  market_tip1: "Wheat prices increased by 5% this week.",
+  market_tip2: "Demand for organic vegetables rising in nearby markets.",
+  market_tip3: "Cotton rates expected to drop due to high yield.",
+  market_tip4: "Tomato prices surged by 8% due to reduced rainfall in key regions.", 
+  market_tip5: "Government to announce a new Minimum Support Price (MSP) policy next week.", 
+
+  // 🌦️ 3-Day Forecast
+  forecast: "3-Day Forecast",
+  today: "Today",
+  tomorrow: "Tomorrow",
+  day3: "Day 3",
+  forecast_today: "Sunny with moderate temperature.",
+  forecast_tomorrow: "Light rain expected in the evening.",
+  forecast_day3: "Cloudy conditions, ideal for sowing new crops.",
+
+  // Profile Page
+  profile_title: "Farmer Profile",
+  profile_subtitle: "Update your farm's information here. This will help us provide more accurate advice.",
+  profile_name: "Farmer's Name",
+  profile_location: "Location (e.g., Village, District)",
+  profile_crop_type: "Primary Crop Type",
+  profile_soil_type: "Primary Soil Type",
+  profile_save_button: "Save Changes",
+  profile_cancel_button: "Cancel",
+  profile_save_success: "Profile updated successfully!",
+  default_farmer_name: "Farmer",
+  default_location: "Atal Nagar, Chhattisgarh",
+  crop_wheat: "Wheat",
+  crop_rice: "Rice",
+  crop_sugarcane: "Sugarcane",
+  crop_cotton: "Cotton",
+  soil_black: "Black Soil",
+  soil_red: "Red Soil",
+  soil_sandy: "Sandy Loam",
+  soil_alluvial: "Alluvial",
+
+  // ✨ NEW: Crop Advisor Translations
+  crop_advisor_heading: "Crop Advisor",
+  your_farm_conditions: "Your Farm's Current Conditions",
+  current_season: "Current Season",
+  kharif: "Kharif",
+  rabi: "Rabi",
+  zaid: "Zaid",
+  crop_advisor_prompt: "Click the button below to get an intelligent crop recommendation for the current {season} season.",
+  analyzing_button: "Analyzing...",
+  recommend_button: "Recommend Best Crop",
+  recommendation_result_text: "Based on your current conditions, the recommended crop is:",
+  no_crop_found: "No suitable crop found for the {season} season.",
+  
+  chatbot_welcome: "🌱 Hello! I am your smart farming assistant. Ask me about farming.",
+  chat_irrigation: "Irrigate your crops when soil moisture is low, usually below 30%.",
+  chat_fertilizer: "Use nitrogen fertilizer if leaves turn yellow. Add organic manure for soil health.",
+  chat_crop: "Wheat, rice, maize are common choices depending on the season.",
+  chat_disease: "Yellow leaves = nitrogen deficiency. Brown spots = fungal infection. Use fungicide if needed.",
+  chat_weather: "Today’s forecast: Sunny with mild winds.",
+  chat_market: "Current mandi prices: Wheat ₹2000/q, Rice ₹2200/q, Maize ₹1800/q.",
+  chat_scheme: "Popular scheme: PM-KISAN Samman Nidhi gives ₹6000/year to farmers.",
+  chat_non_farming: "❌ Sorry, I can only answer farming-related questions.",
+  chat_placeholder: "Ask your farming query...",
+  send: "Send",
+  back: "Back",
+  // Other Sections...
+  language: "Language",
+};
+
+// 🌐 Translations
+export const TRANSLATIONS = {
+  en: baseTranslation,
+
+  // 🇮🇳 Hindi
+  hi: {
+    ...baseTranslation,
+    welcome_back_message: "वापसी पर स्वागत है, {name}!",
+    default_farmer_name: "किसान",
+    default_location: "अटल नगर, छत्तीसगढ़",
+    alerts_title: "महत्वपूर्ण चेतावनी",
+    no_alerts_message: "सभी सिस्टम सामान्य हैं। दिखाने के लिए कोई अलर्ट नहीं है।",
+    alert_low_moisture: "तत्काल सिंचाई की आवश्यकता है। मिट्टी की नमी गंभीर रूप से कम है।",
+    alert_high_ph: "मिट्टी का पीएच उच्च पाया गया। यह पोषक तत्वों के अवशोषण को प्रभावित कर सकता है।",
+    alert_low_nitrogen: "नाइट्रोजन का स्तर कम पाया गया। उर्वरक डालने पर विचार करें।",
+    actions_heading: "क्रियाएँ",
+    readings_header: "लाइव सेंसर रीडिंग",
+    moisture: "मिट्टी की नमी",
+    temperature: "हवा का तापमान",
+    humidity: "हवा में नमी",
+    soil_ph: "मिट्टी का पीएच",
+    nitrogen: "नाइट्रोजन (N)",
+    phosphorus: "फॉस्फोरस (P)",
+    potassium: "पोटैशियम (K)",
+    unit_kg_ha: "किग्रा/हेक्टेयर",
+    action_irrigate: "अभी सिंचाई करें",
+    action_market: "बाज़ार मूल्य",
+    action_news: "समाचार और योजनाएँ",
+    action_community: "समुदाय मंच",
+    action_chatbot: "स्मार्ट सहायक",
+    action_calculator: "उर्वरक कैलकुलेटर",
+    action_diagnosis: "पौधों का निदान",
+    action_advisor: "फ़सल सलाहकार",
+    action_weather: "मौसम",
+    action_profile: "प्रोफ़ाइल",
+    farming_tips: "कृषि सुझाव",
+    tip1: "सिंचाई से पहले प्रतिदिन मिट्टी की नमी जांचें।",
+    tip2: "मिट्टी की उर्वरता बढ़ाने के लिए जैविक खाद का उपयोग करें।",
+    tip3: "अधिक सिंचाई से बचें — इससे फसल की जड़ें खराब हो सकती हैं।",
+    tip4: "हर मौसम में फसल परिवर्तन करें ताकि मिट्टी के पोषक तत्व बने रहें।",
+    tip5: "कीट नियंत्रण के लिए मौसम की जानकारी पर नज़र रखें।",
+    market_trends: "बाज़ार प्रवृत्तियाँ",
+    market_tip1: "इस सप्ताह गेहूं के दाम में 5% की वृद्धि हुई है।",
+    market_tip2: "आसपास के बाजारों में जैविक सब्जियों की मांग बढ़ रही है।",
+    market_tip3: "उच्च उपज के कारण कपास के दामों में कमी की संभावना है।",
+    market_tip4: "प्रमुख क्षेत्रों में कम बारिश के कारण टमाटर की कीमतों में 8% की वृद्धि हुई।",
+    market_tip5: "सरकार अगले सप्ताह एक नई न्यूनतम समर्थन मूल्य (MSP) नीति की घोषणा करेगी।",
+    forecast: "३-दिवसीय पूर्वानुमान",
+    today: "आज",
+    tomorrow: "कल",
+    day3: "परसों",
+    forecast_today: "मौसम साफ रहेगा, तापमान सामान्य रहेगा।",
+    forecast_tomorrow: "शाम को हल्की बारिश होने की संभावना है।",
+    forecast_day3: "बादल छाए रहेंगे — नई फसल बोने के लिए उपयुक्त समय।",
+    profile_title: "किसान प्रोफ़ाइल",
+    profile_subtitle: "अपनी खेत की जानकारी यहाँ अपडेट करें। इससे हमें और सटीक सलाह देने में मदद मिलेगी।",
+    profile_name: "किसान का नाम",
+    profile_location: "स्थान (जैसे, गाँव, जिला)",
+    profile_crop_type: "मुख्य फसल का प्रकार",
+    profile_soil_type: "मुख्य मिट्टी का प्रकार",
+    profile_save_button: "बदलाव सहेजें",
+    profile_cancel_button: "रद्द करें",
+    profile_save_success: "प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!",
+    crop_wheat: "गेहूँ",
+    crop_rice: "चावल",
+    crop_sugarcane: "गन्ना",
+    crop_cotton: "कपास",
+    soil_black: "काली मिट्टी",
+    soil_red: "लाल मिट्टी",
+    soil_sandy: "रेतीली दोमट",
+    soil_alluvial: "जलोढ़",
+    // ✨ NEW: Hindi Crop Advisor Translations
+    crop_advisor_heading: "फ़सल सलाहकार",
+    your_farm_conditions: "आपके खेत की वर्तमान स्थिति",
+    current_season: "वर्तमान मौसम",
+    kharif: "खरीफ",
+    rabi: "रबी",
+    zaid: "ज़ैद",
+    crop_advisor_prompt: "वर्तमान {season} मौसम के लिए एक बुद्धिमान फसल सिफारिश प्राप्त करने के लिए नीचे दिए गए बटन पर क्लिक करें।",
+    analyzing_button: "विश्लेषण हो रहा है...",
+    recommend_button: "सर्वश्रेष्ठ फसल की सिफारिश करें",
+    recommendation_result_text: "आपकी वर्तमान स्थितियों के आधार पर, अनुशंसित फसल है:",
+    no_crop_found: "{season} मौसम के लिए कोई उपयुक्त फसल नहीं मिली।",
+    chatbot_welcome: "🌱 नमस्ते! मैं आपका स्मार्ट कृषि सहायक हूँ। खेती से जुड़े सवाल पूछें।",
+    chat_irrigation: "जब मिट्टी की नमी 30% से कम हो तो सिंचाई करें।",
+    chat_fertilizer: "यदि पत्ते पीले हो जाएँ तो नाइट्रोजन उर्वरक डालें। मिट्टी की सेहत के लिए जैविक खाद का उपयोग करें।",
+    chat_crop: "गेहूँ, धान और मक्का अच्छे विकल्प हैं, मौसम के अनुसार।",
+    chat_disease: "पत्ते पीले = नाइट्रोजन की कमी। भूरे धब्बे = फंगल रोग। फफूंदनाशक का प्रयोग करें।",
+    chat_weather: "आज का मौसम: साफ आसमान, हल्की हवा।",
+    chat_market: "मंडी भाव: गेहूँ ₹2000/q, धान ₹2200/q, मक्का ₹1800/q।",
+    chat_scheme: "लोकप्रिय योजना: पीएम-किसान सम्मान निधि योजना ₹6000/वर्ष।",
+    chat_non_farming: "❌ क्षमा करें, मैं केवल खेती से जुड़े सवालों के जवाब दे सकता हूँ।",
+    chat_placeholder: "अपना कृषि प्रश्न पूछें...",
+    send: "भेजें",
+    back: "वापस",
+  },
+
+  // 🇮🇳 Marathi
+  mr: {
+    ...baseTranslation,
+    welcome_back_message: "परत स्वागत आहे, {name}!",
+    default_farmer_name: "शेतकरी",
+    default_location: "अटल नगर, छत्तीसगड",
+    alerts_title: "महत्वाच्या सूचना",
+    no_alerts_message: "सर्व प्रणाली सामान्य आहेत. दाखवण्यासाठी कोणतेही अलर्ट नाहीत.",
+    alert_low_moisture: "तातडीने सिंचनाची गरज आहे. मातीतील ओलावा गंभीरपणे कमी आहे.",
+    alert_high_ph: "मातीचा पीएच जास्त आढळला. याचा पोषक तत्वांच्या शोषणावर परिणाम होऊ शकतो.",
+    alert_low_nitrogen: "नायट्रोजनची पातळी कमी आढळली. खत घालण्याचा विचार करा.",
+    actions_heading: "क्रिया",
+    readings_header: "थेट सेन्सर वाचन",
+    moisture: "मातीतील आर्द्रता",
+    temperature: "हवेचे तापमान",
+    humidity: "हवेतील आर्द्रता",
+    soil_ph: "मातीचा पीएच",
+    nitrogen: "नायट्रोजन (N)",
+    phosphorus: "फॉस्फरस (P)",
+    potassium: "पोटॅशियम (K)",
+    unit_kg_ha: "किलो/हेक्टर",
+    action_irrigate: "आता पाणी द्या",
+    action_market: "बाजार भाव",
+    action_news: "बातम्या व योजना",
+    action_community: "समुदाय मंच",
+    action_chatbot: "स्मार्ट सहाय्यक",
+    action_calculator: "खत कॅल्क्युलेटर",
+    action_diagnosis: "पिक निदान",
+    action_advisor: "पिक सल्लागार",
+    action_weather: "हवामान",
+    action_profile: "प्रोफाइल",
+    farming_tips: "शेतीसाठी टिप्स",
+    tip1: "पाणी देण्यापूर्वी दररोज मातीतील आर्द्रता तपासा.",
+    tip2: "मातीची सुपीकता वाढवण्यासाठी सेंद्रिय खतांचा वापर करा.",
+    tip3: "अतिपाणी देऊ नका — त्यामुळे पिकांच्या मुळांना इजा होऊ शकते.",
+    tip4: "दर हंगामानुसार पिकांची फेरफार करा, त्यामुळे मातीतील पोषक तत्व टिकतील.",
+    tip5: "किड नियंत्रणासाठी हवामानाच्या माहितीकडे लक्ष ठेवा.",
+    market_trends: "बाजारातील कल",
+    market_tip1: "या आठवड्यात गव्हाच्या भावात ५% वाढ झाली आहे.",
+    market_tip2: "आजूबाजूच्या बाजारात सेंद्रिय भाज्यांची मागणी वाढत आहे.",
+    market_tip3: "जास्त उत्पादनामुळे कापसाचे भाव कमी होण्याची शक्यता आहे.",
+    market_tip4: "प्रमुख प्रदेशांमध्ये पाऊस कमी झाल्यामुळे टोमॅटोच्या भावात ८% वाढ झाली आहे.",
+    market_tip5: "सरकार पुढील आठवड्यात नवीन किमान आधारभूत किंमत (MSP) धोरण जाहीर करणार आहे.",
+    forecast: "३ दिवसांचा हवामान अंदाज",
+    today: "आज",
+    tomorrow: "उद्या",
+    day3: "परवा",
+    forecast_today: "आज ऊन पडेल, तापमान मध्यम राहील.",
+    forecast_tomorrow: "संध्याकाळी हलका पाऊस पडण्याची शक्यता आहे.",
+    forecast_day3: "ढगाळ वातावरण — नवीन पिके पेरण्यासाठी चांगला काळ.",
+    profile_title: "शेतकरी प्रोफाइल",
+    profile_subtitle: "तुमच्या शेताची माहिती येथे अपडेट करा. यामुळे आम्हाला अधिक अचूक सल्ला देण्यास मदत होईल.",
+    profile_name: "शेतकऱ्याचे नाव",
+    profile_location: "ठिकाण (उदा. गाव, जिल्हा)",
+    profile_crop_type: "मुख्य पिकाचा प्रकार",
+    profile_soil_type: "मुख्य मातीचा प्रकार",
+    profile_save_button: "बदल जतन करा",
+    profile_cancel_button: "रद्द करा",
+    profile_save_success: "प्रोफाइल यशस्वीरित्या अपडेट झाली!",
+    crop_wheat: "गहू",
+    crop_rice: "तांदूळ",
+    crop_sugarcane: "ऊस",
+    crop_cotton: "कापूस",
+    soil_black: "काळी माती",
+    soil_red: "लाल माती",
+    soil_sandy: "वाळूमिश्रित चिकणमाती",
+    soil_alluvial: "गाळाची माती",
+    // ✨ NEW: Marathi Crop Advisor Translations
+    crop_advisor_heading: "पिक सल्लागार",
+    your_farm_conditions: "तुमच्या शेताची सद्यस्थिती",
+    current_season: "सध्याचा हंगाम",
+    kharif: "खरीप",
+    rabi: "रब्बी",
+    zaid: "ज़ैद",
+    crop_advisor_prompt: "सध्याच्या {season} हंगामासाठी बुद्धिमान पीक शिफारस मिळविण्यासाठी खालील बटणावर क्लिक करा.",
+    analyzing_button: "विश्लेषण करत आहे...",
+    recommend_button: "सर्वोत्तम पिकाची शिफारस करा",
+    recommendation_result_text: "तुमच्या सद्यस्थितीनुसार, शिफारस केलेले पीक आहे:",
+    no_crop_found: "{season} हंगामासाठी योग्य पीक आढळले नाही.",
+    chatbot_welcome: "🌱 नमस्कार! मी तुमचा स्मार्ट शेती सहाय्यक आहे. शेतीबद्दल प्रश्न विचारा.",
+    chat_irrigation: "जेव्हा मातीतील ओलावा 30% पेक्षा कमी असेल तेव्हा सिंचन करा.",
+    chat_fertilizer: "पाने पिवळी झाली तर नायट्रोजन खत द्या. जमिनीच्या आरोग्यासाठी सेंद्रिय खत वापरा.",
+    chat_crop: "गहू, भात आणि मका हे हंगामानुसार चांगले पर्याय आहेत.",
+    chat_disease: "पाने पिवळी = नायट्रोजन कमतरता. तपकिरी डाग = बुरशीजन्य रोग. फफूंदनाशक वापरा.",
+    chat_weather: "आजचे हवामान: उन आणि हलकी हवा.",
+    chat_market: "मंडी भाव: गहू ₹2000/q, तांदूळ ₹2200/q, मका ₹1800/q.",
+    chat_scheme: "लोकप्रिय योजना: पीएम-किसान सन्मान निधी योजना ₹6000/वर्ष.",
+    chat_non_farming: "❌ क्षमा करा, मी फक्त शेतीशी संबंधित प्रश्नांची उत्तरे देऊ शकतो.",
+    chat_placeholder: "तुमचा शेती प्रश्न विचारा...",
+    send: "पाठवा",
+    back: "मागे",
+  },
+
+  // 🇮🇳 Chhattisgarhi
+  cg: {
+    ...baseTranslation,
+    welcome_back_message: "वापसी म स्वागत हे, {name}!",
+    default_farmer_name: "किसान",
+    default_location: "अटल नगर, छत्तीसगढ़",
+    alerts_title: "जरूरी चिताउनी",
+    no_alerts_message: "सब सिस्टम सामान्य हें। देखाए बर कोनो अलर्ट नइ हे।",
+    alert_low_moisture: "तुरंत सिंचाई के जरूरत हे। माटी के नमी बहुत कम हे।",
+    alert_high_ph: "माटी के पीएच जादा पाय गिस। ए पोषक तत्व के सोखना म असर कर सकथे।",
+    alert_low_nitrogen: "नाइट्रोजन के स्तर कम पाय गिस। खाद डारे के बिचार करव।",
+    actions_heading: "कामकाज",
+    readings_header: "जिंदा सेंसर रीडिंग",
+    moisture: "माटी के नमी",
+    temperature: "हवा तापमान",
+    humidity: "हवा नमी",
+    soil_ph: "माटी के पीएच",
+    nitrogen: "नाइट्रोजन (N)",
+    phosphorus: "फास्फोरस (P)",
+    potassium: "पोटेशियम (K)",
+    unit_kg_ha: "किलो/हेक्टेयर",
+    action_irrigate: "अभी पानी देव",
+    action_market: "बाजार भाव",
+    action_news: "खबर अउ योजना",
+    action_community: "समुदाय मंच",
+    action_chatbot: "स्मार्ट सहायकर",
+    action_calculator: "खाद गणक",
+    action_diagnosis: "फसल निदान",
+    action_advisor: "फसल सलाह",
+    action_weather: "मौसम",
+    action_profile: "प्रोफ़ाइल",
+    farming_tips: "खेती के सुझाव",
+    tip1: "पानी देवय ले पहिली माटी के नमी देखव।",
+    tip2: "माटी ल उपजाऊ बनाय बर जैविक खाद के उपयोग करव।",
+    tip3: "जादा पानी नई देव — इले फसल के जड़ बिगड़ सकथे।",
+    tip4: "हर मोसाम मा फसल बदलथव, माटी के पोषक तत्व बने रहिथे।",
+    tip5: "कीट नियंत्रण बर मौसम के जानकारी देखथव।",
+    market_trends: "बाजार के रुझान",
+    market_tip1: "ए हफ्ता गेहूं के दाम 5% बढ़ गिस हे।",
+    market_tip2: "नजदीकी बाजार मा जैविक सब्जी के मांग बढ़त हे।",
+    market_tip3: "जादा पैदावार ले कपास के दाम घटे के उमेद हे।",
+    market_tip4: "मुख्य जघा मन मा कम पानी गिरे के कारण टमाटर के दाम 8% बाढ़ गे हे।",
+    market_tip5: "सरकार अगला हफ्ता एक नवा न्यूनतम समर्थन मूल्य (MSP) नीति के घोषणा करही।",
+    forecast: "३ दिन के मौसम अंदाज",
+    today: "आज",
+    tomorrow: "काल",
+    day3: "परसो",
+    forecast_today: "आज धूप रहिहे, तापमान सामान्य रहिहे।",
+    forecast_tomorrow: "सांझ मा हलका पानी गिरे के उमेद हे।",
+    forecast_day3: "बादल रहिहे — नई फसल बोये बर बढ़िया समय।",
+    profile_title: "किसान के प्रोफाइल",
+    profile_subtitle: "अपन खेत के जानकारी ल इहाँ अपडेट करव। एखर से हमन ल अउ सही सलाह देहे म मदद मिलही।",
+    profile_name: "किसान के नांव",
+    profile_location: "जघा (जइसे, गाँव, जिला)",
+    profile_crop_type: "मुख्य फसल के किसम",
+    profile_soil_type: "मुख्य माटी के किसम",
+    profile_save_button: "बदलाव ल सहेजव",
+    profile_cancel_button: "रद्द करव",
+    profile_save_success: "प्रोफाइल ह सफलतापूर्वक अपडेट होगे!",
+    crop_wheat: "गहुँ",
+    crop_rice: "चांउर",
+    crop_sugarcane: "गन्ना",
+    crop_cotton: "कपास",
+    soil_black: "करिया माटी",
+    soil_red: "लाल माती",
+    soil_sandy: "रेतिली दोमट",
+    soil_alluvial: "जलोढ़",
+    // ✨ NEW: Chhattisgarhi Crop Advisor Translations
+    crop_advisor_heading: "फसल सलाह",
+    your_farm_conditions: "तोर खेत के वर्तमान स्थिति",
+    current_season: "वर्तमान मौसम",
+    kharif: "खरीफ",
+    rabi: "रबी",
+    zaid: "ज़ैद",
+    crop_advisor_prompt: "वर्तमान {season} मौसम बर एक बुद्धिमान फसल सिफ़ारिश प्राप्त करे बर नीचे के बटन ल क्लिक करव।",
+    analyzing_button: "विश्लेषण करत हे...",
+    recommend_button: "सबले बढ़िया फसल के सिफ़ारिश करव",
+    recommendation_result_text: "तोर वर्तमान स्थिति के आधार पर, अनुशंसित फसल हे:",
+    no_crop_found: "{season} मौसम बर कोनो उपयुक्त फसल नइ मिलिस।",
+    chatbot_welcome: "🌱 नमस्कार! मेंय तोर स्मार्ट खेती सहायकर हंव। खेती से जुड़ा सवाल पूछ।",
+    chat_irrigation: "जब माटी के नमी 30% ले कम हो जाय, त सिंचाई करव।",
+    chat_fertilizer: "पत्ता पिलहा हो गे त नाइट्रोजन खाद देव। माटी बर जैविक खाद के उपयोग करव।",
+    chat_crop: "गहूँ, धान, मक्का – मोसमानुसार बढ़िया फसल हें।",
+    chat_disease: "पत्ता पिलहा = नाइट्रोजन कमी। भुरा धब्बा = फफूंदी रोग। फफूंदनाशक उपयोग करव।",
+    chat_weather: "आज के मौसम: धूप रहिहे, हलका हवा चलही।",
+    chat_market: "मंडी दाम: गहूँ ₹2000/q, चांउर ₹2200/q, मक्का ₹1800/q।",
+    chat_scheme: "लोकप्रिय योजना: पीएम-किसान सम्मान निधि योजना ₹6000/वर्ष।",
+    chat_non_farming: "❌ माफ कर, मेंय सिरिफ खेती से जुड़ा सवाल म उत्तर दे सकथंव।",
+    chat_placeholder: "तोर खेती सवाल पूछ...",
+    send: "भेजव",
+    back: "पाछू",
+  },
+};
+
+// 🧠 Translation Hook
+export function useTranslation(lang = "en") {
+  const t = useMemo(() => {
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS[lang.split('-')[0]] || TRANSLATIONS.en;
+    return (key, params) => {
+      let translation = dict[key] || TRANSLATIONS.en[key] || key;
+      if (params) {
+        Object.keys(params).forEach(paramKey => {
+          translation = translation.replace(`{${paramKey}}`, params[paramKey]);
+        });
+      }
+      return translation;
+    };
+  }, [lang]);
+
+  return { t };
+}
+import React, { useState } from "react";
+import { useTranslation } from "../i18n/useTranslation";
+
+const ChatbotScreen = ({ onBack, lang }) => {
+  const { t } = useTranslation(lang);
+  const [messages, setMessages] = useState([
+    { sender: "bot", text: t("chatbot_welcome") || "🌱 Hello! I am your smart farming assistant. Ask me about farming." },
+  ]);
+  const [input, setInput] = useState("");
+
+  // Knowledge base (simple farming Q&A)
+  const getReply = (query) => {
+    const q = query.toLowerCase();
+
+    // Irrigation
+    if (q.includes("irrigation") || q.includes("पानी") || q.includes("पाणी")) {
+      return t("chat_irrigation");
+    }
+
+    // Fertilizer
+    if (q.includes("fertilizer") || q.includes("खत") || q.includes("खाद")) {
+      return t("chat_fertilizer");
+    }
+
+    // Crop recommendation
+    if (q.includes("crop") || q.includes("फसल") || q.includes("पीक")) {
+      return t("chat_crop");
+    }
+
+    // Disease / Pest
+    if (q.includes("disease") || q.includes("रोग") || q.includes("आजार") || q.includes("pest") || q.includes("कीट")) {
+      return t("chat_disease");
+    }
+
+    // Weather
+    if (q.includes("weather") || q.includes("मौसम") || q.includes("हवामान")) {
+      return t("chat_weather");
+    }
+
+    // Market
+    if (q.includes("market") || q.includes("बाजार") || q.includes("mandi")) {
+      return t("chat_market");
+    }
+
+    // Schemes
+    if (q.includes("scheme") || q.includes("योजना")) {
+      return t("chat_scheme");
+    }
+
+    // If non-farming
+    return t("chat_non_farming");
+  };
+
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    const userMessage = { sender: "you", text: input };
+    setMessages([...messages, userMessage]);
+    setInput("");
+
+    setTimeout(() => {
+      const reply = getReply(input);
+      setMessages((msgs) => [...msgs, { sender: "bot", text: reply }]);
+    }, 600);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">🤖 {t("action_chatbot")}</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">
+          {t("back") || "Back"}
+        </button>
+      </header>
+
+      <div className="h-[70vh] overflow-y-auto mb-4 p-3 glass-card space-y-2">
+        {messages.map((m, idx) => (
+          <div
+            key={idx}
+            className={`p-2 rounded-lg max-w-[75%] ${
+              m.sender === "bot" ? "bg-green-100 text-left" : "bg-blue-100 ml-auto text-right"
+            }`}
+          >
+            <span className="text-sm">{m.text}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex">
+        <input
+          className="flex-grow border rounded-l p-2"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={t("chat_placeholder") || "Ask your farming query..."}
+        />
+        <button onClick={sendMessage} className="px-4 bg-green-600 text-white rounded-r">
+          {t("send") || "Send"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ChatbotScreen;
+
+
+
+
+import React, { useState } from "react";
+import { useTranslation } from "../i18n/useTranslation";
+
+const CommunityForum = ({ onBack, lang, languages }) => {
+  const { t } = useTranslation(lang);
+  const [posts, setPosts] = useState([
+    { user: "Farmer A", text: "How to increase wheat yield?", lang: "en" },
+    { user: "किसान बी", text: "धान के लिए कौन सा उर्वरक अच्छा है?", lang: "hi" },
+  ]);
+  const [input, setInput] = useState("");
+  const [postLang, setPostLang] = useState(lang || "en");
+
+  const handlePost = () => {
+    if (!input.trim()) return;
+    setPosts([...posts, { user: "You", text: input, lang: postLang }]);
+    setInput("");
+  };
+
+  const visible = posts.filter((p) => p.lang === (lang || postLang));
+
+  return (
+    <div className="min-h-screen bg-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">👥 {t("community_heading")}</h2>
+        <button
+          onClick={onBack}
+          className="px-3 py-1 bg-green-500 text-white rounded"
+        >
+          {t("back") || "Back"}
+        </button>
+      </header>
+
+      <div className="mb-4">
+        <label className="text-sm">{t("posting_language")}</label>
+        <select
+          value={postLang}
+          onChange={(e) => setPostLang(e.target.value)}
+          className="ml-2 border rounded p-1"
+        >
+          {languages.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-4 space-y-2">
+        {visible.length ? (
+          visible.map((p, idx) => (
+            <div key={idx} className="border p-2 rounded bg-gray-100">
+              <strong>{p.user}:</strong> {p.text}
+            </div>
+          ))
+        ) : (
+          <div className="text-gray-500">{t("no_posts")}</div>
+        )}
+      </div>
+
+      <div className="flex">
+        <input
+          type="text"
+          placeholder={t("write_something")}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="flex-grow border p-2 rounded-l"
+        />
+        <button
+          onClick={handlePost}
+          className="px-4 bg-green-600 text-white rounded-r"
+        >
+          {t("post") || "Post"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CommunityForum;
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useTranslation } from '../i18n/useTranslation';
+import { cropData } from '../data/Cropdata'; // Import your new dataset
+
+// Helper function to determine the current season based on the month
+const getCurrentSeason = () => {
+  const month = new Date().getMonth(); // 0 (Jan) to 11 (Dec)
+  if (month >= 5 && month <= 9) return 'Kharif'; // June to October
+  if (month >= 10 || month <= 2) return 'Rabi'; // November to March
+  return 'Zaid'; // April to May
+};
+
+const CropAdvisor = ({ onBack, lang, sensorData, profileData }) => {
+  const { t } = useTranslation(lang);
+  const [recommendation, setRecommendation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [currentSeason, setCurrentSeason] = useState('');
+
+  useEffect(() => {
+    setCurrentSeason(getCurrentSeason());
+  }, []);
+
+  // The updated "prediction" function.
+  const getCropRecommendation = () => {
+    setLoading(true);
+    setRecommendation('');
+
+    setTimeout(() => {
+      let bestMatch = null;
+      let minScore = Infinity;
+
+      const currentConditions = {
+        N: sensorData.nitrogen,
+        P: sensorData.phosphorus,
+        K: sensorData.potassium,
+        pH: sensorData.ph,
+        temperature: sensorData.temperature,
+        humidity: sensorData.humidity,
+        soil: t(profileData.soilType), // Get translated soil type from profile
+      };
+
+      for (const dataPoint of cropData) {
+        // First, filter out any crop that is not in the current season.
+        if (dataPoint.season !== currentSeason) {
+          continue; 
+        }
+
+        let score = 0;
+        // Calculate the "difference score" to find the closest match
+        score += Math.abs(currentConditions.N - dataPoint.N);
+        score += Math.abs(currentConditions.P - dataPoint.P);
+        score += Math.abs(currentConditions.K - dataPoint.K);
+        score += Math.abs(currentConditions.pH - dataPoint.ph) * 20; // pH is very important
+        score += Math.abs(currentConditions.temperature - dataPoint.temperature) * 2;
+        score += Math.abs(currentConditions.humidity - dataPoint.humidity);
+
+        // ✨ FIX: Add a robust check to ensure dataPoint.soil exists before comparing.
+        // This prevents crashes if the dataset has any missing soil data.
+        if (!dataPoint.soil || currentConditions.soil.toLowerCase() !== dataPoint.soil.toLowerCase()) {
+          score += 1000;
+        }
+
+        if (score < minScore) {
+          minScore = score;
+          bestMatch = dataPoint;
+        }
+      }
+
+      setRecommendation(bestMatch ? bestMatch.label : t('no_crop_found', { season: currentSeason }));
+      setLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">{t('crop_advisor_heading')}</h2>
+        <button onClick={onBack} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+          {t('profile_cancel_button')}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Side: Display of the farm's current conditions */}
+        <div className="card-style p-6">
+          <h3 className="font-semibold mb-4 text-gray-700">{t('your_farm_conditions')}</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <p><strong>{t('nitrogen')}:</strong> {sensorData.nitrogen.toFixed(0)} {t('unit_kg_ha')}</p>
+            <p><strong>{t('phosphorus')}:</strong> {sensorData.phosphorus.toFixed(0)} {t('unit_kg_ha')}</p>
+            <p><strong>{t('potassium')}:</strong> {sensorData.potassium.toFixed(0)} {t('unit_kg_ha')}</p>
+            <p><strong>{t('soil_ph')}:</strong> {sensorData.ph.toFixed(1)}</p>
+            <p><strong>{t('temperature')}:</strong> {sensorData.temperature.toFixed(1)} {t('unit_celsius')}</p>
+            <p><strong>{t('humidity')}:</strong> {sensorData.humidity.toFixed(1)} {t('unit_percent')}</p>
+            <p><strong>{t('profile_soil_type')}:</strong> {t(profileData.soilType)}</p>
+            <p><strong>{t('current_season')}:</strong> <span className="font-bold text-green-600">{t(currentSeason.toLowerCase())}</span></p>
+          </div>
+        </div>
+
+        {/* Right Side: The recommendation engine */}
+        <div className="card-style p-6 flex flex-col items-center justify-center text-center">
+          <p className="mb-4 text-gray-600">
+            {t('crop_advisor_prompt', { season: t(currentSeason.toLowerCase()) })}
+          </p>
+          <button
+            onClick={getCropRecommendation}
+            disabled={loading}
+            className="w-full px-6 py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? t('analyzing_button') : t('recommend_button')}
+          </button>
+
+          {recommendation && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 w-full"
+            >
+              <p className="text-gray-600">{t('recommendation_result_text')}</p>
+              <p className="text-4xl font-bold text-green-700 mt-2 animate-pulse">{recommendation}</p>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CropAdvisor;
+
+import React, { useState } from "react";
+
+const FertilizerCalculator = ({ onBack }) => {
+  const [area, setArea] = useState("");
+  const [crop, setCrop] = useState("");
+  const [result, setResult] = useState("");
+  // 👇 State to keep track of the error message
+  const [error, setError] = useState("");
+
+  const calculate = () => {
+    // Check if either field is empty
+    if (!area || !crop) {
+      setError("Please enter all fields");
+      setResult(""); // Clear any previous result
+      return;
+    }
+
+    // If everything is okay, clear the error and set the result
+    setError("");
+    setResult(`For ${area} acres of ${crop}, apply approx. ${area * 50} kg of fertilizer.`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">🧮 Fertilizer Calculator</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">Back</button>
+      </header>
+
+      <div className="glass-card p-4 space-y-4">
+        <div>
+          <input
+            type="number"
+            placeholder="Enter area (acres)"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            // 👇 This className is now dynamic. It adds a red border if there's an error and this field is empty.
+            className={`w-full border p-2 rounded transition-colors ${error && !area ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Enter crop name"
+            value={crop}
+            onChange={(e) => setCrop(e.target.value)}
+            // 👇 Same dynamic className for the crop input
+            className={`w-full border p-2 rounded transition-colors ${error && !crop ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+          />
+        </div>
+        
+        {/* 👇 Display the error message in red text if it exists */}
+        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
+        <button onClick={calculate} className="w-full bg-green-600 text-white rounded p-2 hover:bg-green-700">Calculate</button>
+
+        {/* 👇 Show a styled result box only if there is a result */}
+        {result && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded text-center text-green-800">
+                {result}
+            </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FertilizerCalculator;
+import React from "react";
+import { INDIAN_LANGUAGES } from "../i18n/languages";
+
+const LanguageSelector = ({ onSelect }) => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white p-6">
+      <div className="w-full max-w-md p-6 glass-card">
+        <h1 className="text-2xl font-bold text-green-700 mb-4">🌾 Select Language</h1>
+        <p className="text-sm text-gray-600 mb-4">Choose your preferred language for the app.</p>
+
+        <div className="grid grid-cols-2 gap-3">
+          {INDIAN_LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => onSelect(l.code)}
+              className="p-3 rounded-lg border hover:shadow-md button-fancy"
+            >
+              {l.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 text-sm text-gray-500">
+          You can change language later in Profile.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LanguageSelector;
+import React from "react";
+
+const crops = [
+  { name: "Wheat", price: "₹2000/quintal" },
+  { name: "Rice", price: "₹2200/quintal" },
+  { name: "Maize", price: "₹1800/quintal" },
+];
+
+const MarketScreen = ({ onBack }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">📊 Market Prices</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">Back</button>
+      </header>
+
+      <div className="grid gap-3">
+        {crops.map((c, idx) => (
+          <div key={idx} className="glass-card p-3 flex justify-between items-center">
+            <span className="font-semibold">{c.name}</span>
+            <span className="text-green-700">{c.price}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default MarketScreen;
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "../i18n/useTranslation";
+
+const NEWS_API_KEY = "YOUR_NEWS_API_KEY_HERE";
+const NEWS_QUERY = "agriculture OR farming OR crops OR farmers";
+
+const fallbackNews = [
+  { title: "Local mandi prices steady this week", source: "Local News", url: "#" },
+  { title: "Tips: Protect crops from early frost", source: "Agri Tips", url: "#" },
+];
+
+const fallbackSchemes = [
+  { title: "PM-KISAN Samman Nidhi", link: "https://pmkisan.gov.in" },
+  { title: "Agriculture Infrastructure Fund", link: "https://agriwelfare.gov.in" },
+];
+
+const NewsSchemes = ({ onBack, lang }) => {
+  const { t } = useTranslation(lang);
+  const [news, setNews] = useState([]);
+  const [schemes, setSchemes] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchAll() {
+      setLoading(true);
+      try {
+        if (NEWS_API_KEY !== "YOUR_NEWS_API_KEY_HERE") {
+          const res = await fetch(
+            `https://newsapi.org/v2/top-headlines?q=${encodeURIComponent(NEWS_QUERY)}&pageSize=6&apiKey=${NEWS_API_KEY}`
+          );
+          const json = await res.json();
+          if (json && json.articles) {
+            setNews(json.articles.map((a) => ({ title: a.title, source: a.source.name, url: a.url })));
+          } else {
+            setNews(fallbackNews);
+          }
+        } else {
+          setNews(fallbackNews);
+        }
+      } catch {
+        setNews(fallbackNews);
+      }
+
+      setSchemes(fallbackSchemes);
+      setLoading(false);
+    }
+    fetchAll();
+  }, []);
+
+  return (
+    <div className="min-h-screen p-4 bg-gray-50">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-green-700 headline-glow">📰 {t("news_heading")}</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">
+          Back
+        </button>
+      </header>
+
+      <section className="mb-6">
+        <h3 className="font-semibold mb-2">Top Headlines</h3>
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <div className="space-y-3">
+            {news.map((n, idx) => (
+              <a key={idx} href={n.url} target="_blank" rel="noreferrer" className="block p-3 glass-card hover:shadow-lg">
+                <div className="text-sm font-semibold">{n.title}</div>
+                <div className="text-xs text-gray-500 mt-1">{n.source}</div>
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h3 className="font-semibold mb-2">{t("schemes_heading")}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {schemes.map((s, i) => (
+            <a key={i} href={s.link} target="_blank" rel="noreferrer" className="p-3 glass-card hover:scale-[1.01]">
+              <div className="font-medium">{s.title}</div>
+              <div className="text-xs text-gray-500 mt-1">Official</div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default NewsSchemes;
+import React, { useState } from "react";
+import { useTranslation } from "../i18n/useTranslation";
+
+const PlantDiagnosis = ({ onBack, lang }) => {
+  const { t } = useTranslation(lang);
+  const [symptom, setSymptom] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleDiagnosis = () => {
+    if (symptom.toLowerCase().includes("yellow")) {
+      setDiagnosis("Possible Nitrogen deficiency. Add urea.");
+    } else if (symptom.toLowerCase().includes("spots")) {
+      setDiagnosis("Possible fungal infection. Use fungicide.");
+    } else if (symptom.toLowerCase().includes("wilting")) {
+      setDiagnosis("Soil moisture low. Irrigate immediately.");
+    } else {
+      setDiagnosis("Symptom not recognized. Consider uploading a photo.");
+    }
+  };
+
+  const handleImage = (file) => {
+    if (!file) return;
+    setImage(URL.createObjectURL(file));
+    setDiagnosis("");
+  };
+
+  const handleFromPhoto = () => {
+    if (!image) {
+      setDiagnosis("Upload a photo first.");
+      return;
+    }
+    setLoading(true);
+    setTimeout(() => {
+      setDiagnosis("Image reviewed: possible early-blight. Recommend fungicide.");
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="min-h-screen bg-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">🌿 Plant Diagnosis</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">
+          Back
+        </button>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-semibold">Enter Symptom:</label>
+          <input
+            type="text"
+            placeholder="e.g. Yellow leaves"
+            value={symptom}
+            onChange={(e) => setSymptom(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
+          <button onClick={handleDiagnosis} className="mt-3 px-4 py-2 bg-green-600 text-white rounded w-full">
+            Diagnose
+          </button>
+          <div className="mt-4 p-3 border rounded bg-gray-100">
+            <h3 className="font-bold">Result:</h3>
+            <p>{diagnosis}</p>
+          </div>
+        </div>
+
+        <div>
+          <label className="block font-semibold mb-2">{t("upload_photo")}</label>
+          <input type="file" accept="image/*" onChange={(e) => handleImage(e.target.files[0])} className="mb-3" />
+          {image && (
+            <div>
+              <img src={image} alt="preview" className="img-preview w-full h-auto object-cover mb-2" />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleFromPhoto}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-green-600 text-white rounded"
+                >
+                  {loading ? "Checking..." : t("diagnose_photo")}
+                </button>
+                <button onClick={() => { setImage(null); setDiagnosis(""); }} className="px-3 py-2 bg-gray-200 rounded">
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
+          {!image && <div className="text-sm text-gray-500">No photo selected.</div>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PlantDiagnosis;
+import React, { useState } from 'react';
+import { useTranslation } from '../i18n/useTranslation';
+import { toast } from 'react-hot-toast';
+
+// This component now receives the profile data and a function to update it
+const ProfileScreen = ({ onBack, lang, profileData, setProfileData }) => {
+  const { t } = useTranslation(lang);
+  
+  // Local state to manage the form inputs, initialized with the current profile data
+  const [formData, setFormData] = useState(profileData);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    setProfileData(formData); // Update the main app's state
+    toast.success(t('profile_save_success'));
+    onBack(); // Go back to the dashboard after saving
+  };
+
+  const cropOptions = ['crop_wheat', 'crop_rice', 'crop_sugarcane', 'crop_cotton'];
+  const soilOptions = ['soil_black', 'soil_red', 'soil_sandy', 'soil_alluvial'];
+
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-2xl mx-auto">
+        <header className="mb-6 text-center">
+          <h2 className="text-3xl font-bold text-gray-800">{t('profile_title')}</h2>
+          <p className="text-gray-500 mt-2">{t('profile_subtitle')}</p>
+        </header>
+
+        <form onSubmit={handleSave} className="card-style p-8 space-y-6">
+          {/* Farmer's Name Input */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">{t('profile_name')}</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+              required
+            />
+          </div>
+
+          {/* Location Input */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700">{t('profile_location')}</label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+              required
+            />
+          </div>
+
+          {/* Crop Type Dropdown */}
+          <div>
+            <label htmlFor="cropType" className="block text-sm font-medium text-gray-700">{t('profile_crop_type')}</label>
+            <select
+              id="cropType"
+              name="cropType"
+              value={formData.cropType}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+            >
+              {cropOptions.map(cropKey => (
+                <option key={cropKey} value={cropKey}>{t(cropKey)}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Soil Type Dropdown */}
+          <div>
+            <label htmlFor="soilType" className="block text-sm font-medium text-gray-700">{t('profile_soil_type')}</label>
+            <select
+              id="soilType"
+              name="soilType"
+              value={formData.soilType}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+            >
+              {soilOptions.map(soilKey => (
+                <option key={soilKey} value={soilKey}>{t(soilKey)}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-4 pt-4">
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-6 py-2 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 text-sm font-semibold text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700"
+            >
+              {t('profile_save_button')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileScreen;
+import React, { useState, useEffect } from "react";
+
+const WeatherScreen = ({ onBack }) => {
+  const [weather, setWeather] = useState({ temp: 29, condition: "Sunny" });
+
+  useEffect(() => {
+    // Simulate live update
+    const interval = setInterval(() => {
+      setWeather((w) => ({
+        temp: w.temp + (Math.random() > 0.5 ? 1 : -1),
+        condition: ["Sunny", "Cloudy", "Rainy"][Math.floor(Math.random() * 3)],
+      }));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-green-600">🌦️ Weather</h2>
+        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">Back</button>
+      </header>
+
+      <div className="glass-card p-6 flex flex-col items-center">
+        <div className="text-6xl mb-3">{weather.condition === "Sunny" ? "☀️" : weather.condition === "Cloudy" ? "☁️" : "🌧️"}</div>
+        <div className="text-2xl font-bold">{weather.temp}°C</div>
+        <div className="text-gray-600">{weather.condition}</div>
+      </div>
+    </div>
+  );
+};
+
+export default WeatherScreen;
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "./i18n/useTranslation";
+import { INDIAN_LANGUAGES } from "./i18n/languages";
+import { AnimatePresence, motion } from "framer-motion";
+import { Toaster, toast } from "react-hot-toast";
+
+import {
+  UserCircleIcon,
+  CloudIcon,
+  BugAntIcon,
+  CircleStackIcon,
+  NewspaperIcon,
+  ChatBubbleLeftRightIcon,
+  QueueListIcon,
+  CloudArrowUpIcon,
+  CalculatorIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
+
+import SensorCard from "./components/SensorCard";
+import ActionButton from "./components/ActionButton";
+import Team from "./components/Team";
+import LanguageSelector from "./screens/LanguageSelector";
+import HeaderCard from "./components/HeaderCard";
+import Alerts from "./components/Alerts";
+import Logo from "./components/Logo";
+
+import ChatbotScreen from "./screens/ChatbotScreen";
+import FertilizerCalculator from "./screens/FertilizerCalculator";
+import CropAdvisor from "./screens/CropAdvisor";
+import PlantDiagnosis from "./screens/PlantDiagnosis";
+import MarketScreen from "./screens/MarketScreen";
+import CommunityForum from "./screens/CommunityForum";
+import ProfileScreen from "./screens/ProfileScreen";
+import WeatherScreen from "./screens/WeatherScreen";
+import NewsSchemes from "./screens/NewsSchemes";
+
+// ==================== DASHBOARD COMPONENT ====================
+const Dashboard = ({ t, onScreenSelect, sensorData, activeAlerts, profileData }) => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+  };
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
+
+  return (
+    <div>
+      <Alerts alerts={activeAlerts} t={t} />
+      <HeaderCard t={t} profileData={profileData} />
+
+      <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* ========== SENSOR DATA SECTION ========== */}
+        <div className="lg:col-span-2">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            {t("readings_header")}
+          </h2>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {[
+              { title: t("moisture"), value: sensorData.moisture.toFixed(1), unit: t("unit_percent"), icon: "moisture" },
+              { title: t("temperature"), value: sensorData.temperature.toFixed(1), unit: t("unit_celsius"), icon: "temperature" },
+              { title: t("humidity"), value: sensorData.humidity.toFixed(1), unit: t("unit_percent"), icon: "humidity" },
+              { title: t("soil_ph"), value: sensorData.ph.toFixed(1), unit: "", icon: "ph" },
+              { title: t("nitrogen"), value: sensorData.nitrogen.toFixed(0), unit: t("unit_kg_ha"), icon: "nitrogen" },
+              { title: t("phosphorus"), value: sensorData.phosphorus.toFixed(0), unit: t("unit_kg_ha"), icon: "phosphorus" },
+              { title: t("potassium"), value: sensorData.potassium.toFixed(0), unit: t("unit_kg_ha"), icon: "potassium" },
+            ].map((item) => (
+              <motion.div key={item.title} variants={itemVariants}>
+                <SensorCard {...item} />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* ========== ACTION BUTTONS ========== */}
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            {t("actions_heading")}
+          </h2>
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-10"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {[
+              { label: t("action_irrigate"), Icon: CloudArrowUpIcon, onClick: () => toast.success("Irrigation triggered!") },
+              { label: t("action_market"), Icon: CircleStackIcon, onClick: () => onScreenSelect("market") },
+              { label: t("action_news"), Icon: NewspaperIcon, onClick: () => onScreenSelect("news") },
+              { label: t("action_chatbot"), Icon: SparklesIcon, onClick: () => onScreenSelect("chatbot") },
+              { label: t("action_calculator"), Icon: CalculatorIcon, onClick: () => onScreenSelect("calculator") },
+              { label: t("action_diagnosis"), Icon: BugAntIcon, onClick: () => onScreenSelect("diagnosis") },
+              { label: t("action_advisor"), Icon: QueueListIcon, onClick: () => onScreenSelect("advisor") },
+              { label: t("action_community"), Icon: ChatBubbleLeftRightIcon, onClick: () => onScreenSelect("community") },
+              { label: t("action_weather"), Icon: CloudIcon, onClick: () => onScreenSelect("weather") },
+            ].map((item) => (
+              <motion.div key={item.label} variants={itemVariants}>
+                <ActionButton {...item} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* ========== RIGHT-SIDE PANEL (TIPS + MARKET + FORECAST) ========== */}
+        <aside className="flex flex-col gap-4 mt-2">
+          {/* 🌱 Farming Tips Card */}
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-md border border-green-200 hover:shadow-lg transition-all duration-200">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-green-800 flex items-center gap-2 mb-2">
+                🌱 {t("farming_tips")}
+              </h3>
+              <ul className="list-disc ml-5 text-sm text-gray-800 leading-relaxed space-y-1">
+                <li>{t("tip1")}</li>
+                <li>{t("tip2")}</li>
+                <li>{t("tip3")}</li>
+                <li>{t("tip4")}</li>
+                <li>{t("tip5")}</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 📊 Market Trends Card */}
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-md border border-blue-200 hover:shadow-lg transition-all duration-200">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-blue-800 flex items-center gap-2 mb-2">
+                📊 {t("market_trends")}
+              </h3>
+              <ul className="list-disc ml-5 text-sm text-gray-800 leading-relaxed space-y-1">
+                <li>{t("market_tip1")}</li>
+                <li>{t("market_tip2")}</li>
+                <li>{t("market_tip3")}</li>
+                <li>🧄 Garlic prices up <strong>6%</strong> due to export demand.</li>
+                <li>🌾 Paddy MSP expected to rise next season as per govt reports.</li>
+                <li>🥦 Local vegetable markets see <strong>12%</strong> hike this week.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 🌦️ 3-Day Weather Forecast Card */}
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl shadow-md border border-yellow-200 hover:shadow-lg transition-all duration-200">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-yellow-800 flex items-center gap-2 mb-2">
+                🌦️ {t("forecast")}
+              </h3>
+              <ul className="list-none text-sm text-gray-800 leading-relaxed space-y-1">
+                <li><strong>{t("today")}:</strong> {t("forecast_today")}</li>
+                <li><strong>{t("tomorrow")}:</strong> {t("forecast_tomorrow")}</li>
+                <li><strong>{t("day3")}:</strong> {t("forecast_day3")}</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+};
+
+// ==================== MAIN APP ====================
+function App() {
+  const [lang, setLang] = useState(null); // ✅ no localStorage — always ask
+  const { t } = useTranslation(lang || "en");
+  const [screen, setScreen] = useState("dashboard");
+
+  const [profileData, setProfileData] = useState({
+    name: t("default_farmer_name"),
+    location: t("default_location"),
+    cropType: "crop_wheat",
+    soilType: "soil_black",
+  });
+
+  const [sensorData, setSensorData] = useState({
+    moisture: 45,
+    temperature: 29,
+    humidity: 70,
+    ph: 6.8,
+    nitrogen: 132,
+    phosphorus: 45,
+    potassium: 190,
+  });
+
+  const [activeAlerts, setActiveAlerts] = useState([]);
+
+  // Simulated sensor data updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSensorData((prevData) => ({
+        moisture: Math.max(0, Math.min(100, prevData.moisture + (Math.random() * 4 - 2))),
+        temperature: Math.max(-5, Math.min(50, prevData.temperature + (Math.random() * 2 - 1))),
+        humidity: Math.max(0, Math.min(100, prevData.humidity + (Math.random() * 3 - 1.5))),
+        ph: Math.max(5, Math.min(8.5, prevData.ph + (Math.random() * 0.2 - 0.1))),
+        nitrogen: Math.max(100, Math.min(200, prevData.nitrogen + (Math.random() * 4 - 2))),
+        phosphorus: Math.max(30, Math.min(70, prevData.phosphorus + (Math.random() * 2 - 1))),
+        potassium: Math.max(150, Math.min(250, prevData.potassium + (Math.random() * 6 - 3))),
+      }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Alerts based on sensor data
+  useEffect(() => {
+    const newAlerts = [];
+    if (sensorData.moisture < 30) newAlerts.push({ id: "low_moisture", type: "critical", messageKey: "alert_low_moisture" });
+    if (sensorData.ph > 7.5) newAlerts.push({ id: "high_ph", type: "warning", messageKey: "alert_high_ph" });
+    if (sensorData.nitrogen < 120) newAlerts.push({ id: "low_nitrogen", type: "warning", messageKey: "alert_low_nitrogen" });
+    setActiveAlerts(newAlerts);
+  }, [sensorData]);
+
+  // ✅ Always show Language Selector first (every time)
+  if (!lang) {
+    return <LanguageSelector onSelect={(code) => setLang(code)} />;
+  }
+
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setLang(newLang);
+  };
+
+  // Dynamic Screen Renderer
+  const screenProps = {
+    onBack: () => setScreen("dashboard"),
+    lang,
+    profileData,
+    setProfileData,
+    sensorData,
+  };
+
+  const renderScreen = () => {
+    const motionProps = {
+      key: screen,
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: 0.3 },
+    };
+
+    switch (screen) {
+      case "profile":
+        return <motion.div {...motionProps}><ProfileScreen {...screenProps} /></motion.div>;
+      case "chatbot":
+        return <motion.div {...motionProps}><ChatbotScreen {...screenProps} /></motion.div>;
+      case "calculator":
+        return <motion.div {...motionProps}><FertilizerCalculator {...screenProps} /></motion.div>;
+      case "advisor":
+        return <motion.div {...motionProps}><CropAdvisor {...screenProps} /></motion.div>;
+      case "diagnosis":
+        return <motion.div {...motionProps}><PlantDiagnosis {...screenProps} /></motion.div>;
+      case "market":
+        return <motion.div {...motionProps}><MarketScreen {...screenProps} /></motion.div>;
+      case "community":
+        return <motion.div {...motionProps}><CommunityForum {...screenProps} languages={INDIAN_LANGUAGES} /></motion.div>;
+      case "weather":
+        return <motion.div {...motionProps}><WeatherScreen {...screenProps} /></motion.div>;
+      case "news":
+        return <motion.div {...motionProps}><NewsSchemes {...screenProps} /></motion.div>;
+      default:
+        return (
+          <motion.div {...motionProps}>
+            <Dashboard
+              t={t}
+              onScreenSelect={setScreen}
+              sensorData={sensorData}
+              activeAlerts={activeAlerts}
+              profileData={profileData}
+            />
+          </motion.div>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <Toaster position="top-center" />
+        <header className="mb-8 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Logo className="h-14 w-14" />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Kisan Mitra</h1>
+              <p className="text-sm text-gray-500">{t("field_id")}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <select
+              value={lang}
+              onChange={handleLanguageChange}
+              className="bg-white border border-gray-300 rounded-md p-2 text-sm focus:ring-green-500 focus:border-green-500"
+            >
+              {INDIAN_LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
+            </select>
+            <UserCircleIcon
+              className="h-8 w-8 text-gray-600 cursor-pointer hover:text-green-600 transition-colors"
+              onClick={() => setScreen("profile")}
+            />
+          </div>
+        </header>
+
+        <main>
+          <AnimatePresence mode="wait">{renderScreen()}</AnimatePresence>
+        </main>
+
+        <div className="mt-12">
+          <Team />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌿 Smart Agriculture Assistance System - Enhanced Design */
+
+/* Body Background */
+body {
+  @apply bg-gradient-to-b from-green-50 via-white to-green-100 min-h-screen font-sans text-gray-800;
+  background-attachment: fixed;
+}
+
+/* 🌾 Enhanced Glass Card for Sensor Boxes and Components */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 2px solid #22c55e;; /* ✅ visible soft green border */
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.18);
+  border-color: rgba(22, 163, 74, 0.6); /* darker green on hover */
+}
+
+/* Floating Animation for Icons or Cards */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.float-animate {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient Title Text */
+.title-gradient {
+  background: linear-gradient(90deg, #16a34a, #65a30d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Fancy Green Button */
+.btn-green {
+  @apply bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition-all duration-300;
+}
+
+.btn-green:hover {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+/* Smooth Fade-in Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeInUp 0.7s ease-in-out both;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #15803d, #16a34a);
+}
+
+/* Footer Styling */
+footer {
+  @apply text-center text-sm text-gray-600 mt-6 py-3;
+}
+
+/* Input Fields (for forms, chatbot, crop advisor, etc.) */
+input, select, textarea {
+  @apply bg-white/80 border border-green-200 rounded-lg px-3 py-2 outline-none transition-all duration-200;
+}
+
+input:focus, select:focus, textarea:focus {
+  @apply border-green-400 ring-2 ring-green-100;
+}
+
+/* Header */
+header {
+  @apply flex justify-between items-center mb-4;
+}
+
+/* Section Grid Layout */
+.section-container {
+  @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-4;
+}
+
+/* Soft Shadow */
+.shadow-soft {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Tooltip for hints */
+.tooltip {
+  position: relative;
+}
+
+.tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #14532d;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* Label for Simulated Data */
+.sim-label {
+  @apply text-xs text-gray-500 italic;
+}
+
+/* Optional: Make charts and sensor boxes have soft rounded edges */
+.chart-box {
+  @apply bg-white/90 rounded-2xl p-4 border border-green-200 shadow-md transition-all duration-300;
+}
+
+.chart-box:hover {
+  @apply border-green-400 shadow-lg;
+}
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
