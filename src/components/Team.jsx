@@ -3,14 +3,14 @@ import { FaLinkedin, FaGithub } from "react-icons/fa";
 
 const teamMembers = [
   {
-    name: "Prof. Anjali Deshmukh",
-    role: "Project Guide",
-    work: "Mentor & advisor, guided the project implementation.",
+    name: "Hrishabh Kumar",
+    role: "Developer",
+    work: "Helps in integration and developing the backend.",
     photo: "/images/professor.jpg",
     linkedin: "https://linkedin.com/in/anjali",
   },
   {
-    name: "Omkar Patil",
+    name: "Omkar Waghmode",
     role: "Frontend Developer",
     work: "Developed UI and integrated multi-language support.",
     photo: "/images/omkar.jpg", 
@@ -18,21 +18,14 @@ const teamMembers = [
     github: "https://github.com/omkar",
   },
   {
-    name: "Sneha Sharma",
+    name: "Adarsh Aanchal",
     role: "ML Engineer",
     work: "Built crop recommendation and plant disease detection models.",
     photo: "/images/sneha.jpg",
     linkedin: "https://linkedin.com/in/sneha",
     github: "https://github.com/sneha",
   },
-  {
-    name: "Raj Verma",
-    role: "IoT Engineer",
-    work: "Integrated soil and weather sensors with backend.",
-    photo: "/images/raj.jpg",
-    linkedin: "https://linkedin.com/in/raj",
-    github: "https://github.com/raj",
-  },
+ 
 ];
 
 // ✨ NEW: We separate the professor from the rest of the team to style them differently.

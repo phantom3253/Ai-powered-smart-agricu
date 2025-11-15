@@ -1,88 +1,81 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "../i18n/useTranslation";
 
-const NEWS_API_KEY = "YOUR_NEWS_API_KEY_HERE";
-const NEWS_QUERY = "agriculture OR farming OR crops OR farmers";
-
-const fallbackNews = [
-  { title: "Local mandi prices steady this week", source: "Local News", url: "#" },
-  { title: "Tips: Protect crops from early frost", source: "Agri Tips", url: "#" },
-];
-
-const fallbackSchemes = [
-  { title: "PM-KISAN Samman Nidhi", link: "https://pmkisan.gov.in" },
-  { title: "Agriculture Infrastructure Fund", link: "https://agriwelfare.gov.in" },
-];
-
-const NewsSchemes = ({ onBack, lang }) => {
-  const { t } = useTranslation(lang);
+const NewsSchemes = () => {
   const [news, setNews] = useState([]);
-  const [schemes, setSchemes] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const API_KEY = "pub_7e35b41a056849b48cfbdf89972ff9af";
 
   useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
+    const fetchNews = async () => {
       try {
-        if (NEWS_API_KEY !== "YOUR_NEWS_API_KEY_HERE") {
-          const res = await fetch(
-            `https://newsapi.org/v2/top-headlines?q=${encodeURIComponent(NEWS_QUERY)}&pageSize=6&apiKey=${NEWS_API_KEY}`
-          );
-          const json = await res.json();
-          if (json && json.articles) {
-            setNews(json.articles.map((a) => ({ title: a.title, source: a.source.name, url: a.url })));
-          } else {
-            setNews(fallbackNews);
-          }
+        const response = await fetch(
+          `https://newsdata.io/api/1/latest?apikey=${API_KEY}&q=Agriculture`
+        );
+
+        const data = await response.json();
+        console.log("API RESPONSE:", data);
+
+        // API Error handling
+        if (data.status === "error") {
+          setErrorMsg(data.results?.message || "API error occurred");
+          setNews([]);
+        } 
+        // Success - results is always an array
+        else if (Array.isArray(data.results)) {
+          setNews(data.results);
         } else {
-          setNews(fallbackNews);
+          setErrorMsg("No news found");
+          setNews([]);
         }
-      } catch {
-        setNews(fallbackNews);
+      } catch (err) {
+        setErrorMsg("Failed to fetch news");
+        console.error(err);
       }
 
-      setSchemes(fallbackSchemes);
       setLoading(false);
-    }
-    fetchAll();
+    };
+
+    fetchNews();
   }, []);
 
+  if (loading) return <h2 className="text-xl p-4">Loading news...</h2>;
+  if (errorMsg)
+    return <h2 className="text-xl text-red-600 p-4 text-center">{errorMsg}</h2>;
+
   return (
-    <div className="min-h-screen p-4 bg-gray-50">
-      <header className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-green-700 headline-glow">📰 {t("news_heading")}</h2>
-        <button onClick={onBack} className="px-3 py-1 bg-green-500 text-white rounded">
-          Back
-        </button>
-      </header>
+    <div className="p-5">
+      <h1 className="text-3xl font-bold mb-4">Latest Agriculture News</h1>
 
-      <section className="mb-6">
-        <h3 className="font-semibold mb-2">Top Headlines</h3>
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <div className="space-y-3">
-            {news.map((n, idx) => (
-              <a key={idx} href={n.url} target="_blank" rel="noreferrer" className="block p-3 glass-card hover:shadow-lg">
-                <div className="text-sm font-semibold">{n.title}</div>
-                <div className="text-xs text-gray-500 mt-1">{n.source}</div>
-              </a>
-            ))}
-          </div>
-        )}
-      </section>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {news.map((item, index) => (
+          <div key={index} className="border p-4 shadow rounded-lg">
+            
+            {item.image_url && (
+              <img
+                src={item.image_url}
+                alt="news"
+                className="rounded mb-3"
+              />
+            )}
 
-      <section>
-        <h3 className="font-semibold mb-2">{t("schemes_heading")}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {schemes.map((s, i) => (
-            <a key={i} href={s.link} target="_blank" rel="noreferrer" className="p-3 glass-card hover:scale-[1.01]">
-              <div className="font-medium">{s.title}</div>
-              <div className="text-xs text-gray-500 mt-1">Official</div>
+            <h2 className="font-bold text-lg">{item.title}</h2>
+
+            <p className="text-gray-700 text-sm mt-2">
+              {item.description || "No description available"}
+            </p>
+
+            <a
+              href={item.link}
+              target="_blank"
+              className="text-blue-600 underline mt-3 block"
+            >
+              Read More →
             </a>
-          ))}
-        </div>
-      </section>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
