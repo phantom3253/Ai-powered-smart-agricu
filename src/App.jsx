@@ -36,6 +36,8 @@ import ProfileScreen from "./screens/ProfileScreen";
 import WeatherScreen from "./screens/WeatherScreen";
 import NewsSchemes from "./screens/NewsSchemes";
 
+
+// ==================== DASHBOARD COMPONENT ====================
 // ==================== DASHBOARD COMPONENT ====================
 const Dashboard = ({ t, onScreenSelect, sensorData, activeAlerts, profileData, isLoading }) => {
   const containerVariants = {
@@ -128,6 +130,7 @@ const Dashboard = ({ t, onScreenSelect, sensorData, activeAlerts, profileData, i
               </ul>
             </div>
           </div>
+
           <div className="card-style bg-gradient-to-br from-blue-50 to-sky-100 border-blue-200">
             <div className="p-5">
               <h3 className="text-lg font-bold text-blue-800 flex items-center gap-2 mb-3">
@@ -140,6 +143,7 @@ const Dashboard = ({ t, onScreenSelect, sensorData, activeAlerts, profileData, i
               </ul>
             </div>
           </div>
+
           <div className="card-style bg-gradient-to-br from-yellow-50 to-amber-100 border-yellow-200">
             <div className="p-5">
               <h3 className="text-lg font-bold text-yellow-800 flex items-center gap-2 mb-3">
@@ -154,62 +158,89 @@ const Dashboard = ({ t, onScreenSelect, sensorData, activeAlerts, profileData, i
           </div>
         </aside>
       </div>
+
+      {/* ✅ TEAM SECTION ONLY ON DASHBOARD */}
+      <div className="mt-20 border-t pt-12">
+        <Team />
+      </div>
     </div>
   );
 };
 
+
+
 // ==================== MAIN APP ====================
+
 function App() {
   const [lang, setLang] = useState(null);
   const { t } = useTranslation(lang || "en");
   const [screen, setScreen] = useState("dashboard");
   const [isLoading, setIsLoading] = useState(true);
+
   const [profileData, setProfileData] = useState({
     name: "Farmer",
     location: "Atal Nagar, Chhattisgarh",
     cropType: "crop_wheat",
-    soilType: "soil_black",
+    soilType: "soil_black"
   });
+
   const [sensorData, setSensorData] = useState({
     moisture: 45, temperature: 29, humidity: 70, ph: 6.8,
-    nitrogen: 132, phosphorus: 45, potassium: 190,
+    nitrogen: 132, phosphorus: 45, potassium: 190
   });
+
   const [activeAlerts, setActiveAlerts] = useState([]);
 
+  // ==================== BACK STACK ====================
+  const [navStack, setNavStack] = useState([]);
+
+  const navigate = (next) => {
+    setNavStack((prev) => [...prev, screen]);
+    setScreen(next);
+  };
+
+  const goBack = () => {
+    setNavStack((prev) => {
+      if (prev.length === 0) {
+        setScreen("dashboard");
+        return prev;
+      }
+      const last = prev[prev.length - 1];
+      setScreen(last);
+      return prev.slice(0, -1);
+    });
+  };
+
+  // ================================================
+
   useEffect(() => {
-    // Simulate initial data load
     const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (lang) {
-      const defaultName = TRANSLATIONS[lang]?.default_farmer_name || TRANSLATIONS.en.default_farmer_name;
-      const defaultLocation = TRANSLATIONS[lang]?.default_location || TRANSLATIONS.en.default_location;
-      setProfileData(prev => ({ ...prev, name: defaultName, location: defaultLocation }));
+      const defaultName = TRANSLATIONS[lang]?.default_farmer_name;
+      const defaultLocation = TRANSLATIONS[lang]?.default_location;
+      setProfileData(prev => ({
+        ...prev,
+        name: defaultName,
+        location: defaultLocation
+      }));
     }
   }, [lang]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSensorData((prevData) => ({
-        moisture: Math.max(0, Math.min(100, prevData.moisture + (Math.random() * 4 - 2))),
-        temperature: Math.max(-5, Math.min(50, prevData.temperature + (Math.random() * 2 - 1))),
-        humidity: Math.max(0, Math.min(100, prevData.humidity + (Math.random() * 3 - 1.5))),
-        ph: Math.max(5, Math.min(8.5, prevData.ph + (Math.random() * 0.2 - 0.1))),
-        nitrogen: Math.max(100, Math.min(200, prevData.nitrogen + (Math.random() * 4 - 2))),
-        phosphorus: Math.max(30, Math.min(70, prevData.phosphorus + (Math.random() * 2 - 1))),
-        potassium: Math.max(150, Math.min(250, prevData.potassium + (Math.random() * 6 - 3))),
-      }));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     const newAlerts = [];
-    if (sensorData.moisture < 30) newAlerts.push({ id: "low_moisture", type: "critical", messageKey: "alert_low_moisture" });
-    if (sensorData.ph > 7.5) newAlerts.push({ id: "high_ph", type: "warning", messageKey: "alert_high_ph" });
-    if (sensorData.nitrogen < 120) newAlerts.push({ id: "low_nitrogen", type: "warning", messageKey: "alert_low_nitrogen" });
+    if (sensorData.moisture < 30)
+      newAlerts.push({ id: "low_moisture", type: "critical", messageKey: "alert_low_moisture" });
+
+    if (sensorData.ph > 7.5)
+      newAlerts.push({ id: "high_ph", type: "warning", messageKey: "alert_high_ph" });
+
+    if (sensorData.nitrogen < 120)
+      newAlerts.push({ id: "low_nitrogen", type: "warning", messageKey: "alert_low_nitrogen" });
+
     setActiveAlerts(newAlerts);
   }, [sensorData]);
 
@@ -217,93 +248,101 @@ function App() {
     return <LanguageSelector onSelect={(code) => setLang(code)} />;
   }
 
-  const handleLanguageChange = (e) => setLang(e.target.value);
+
   const screenProps = {
-    onBack: () => setScreen("dashboard"), lang, profileData, setProfileData, sensorData,
+    onBack: goBack,
+    lang,
+    profileData,
+    setProfileData,
+    sensorData
   };
 
+
   const renderScreen = () => {
-    const motionProps = {
+
+    const anim = {
       key: screen,
-      initial: { opacity: 0, scale: 0.98 },
+      initial: { opacity: 0, scale: 0.97 },
       animate: { opacity: 1, scale: 1 },
-      exit: { opacity: 0, scale: 0.98 },
-      transition: { duration: 0.3 },
+      exit: { opacity: 0, scale: 0.97 },
+      transition: { duration: 0.28 }
     };
+
     switch (screen) {
-      case "profile": return <motion.div {...motionProps}><ProfileScreen {...screenProps} /></motion.div>;
-      case "chatbot": return <motion.div {...motionProps}><ChatbotScreen {...screenProps} /></motion.div>;
-      case "calculator": return <motion.div {...motionProps}><FertilizerCalculator {...screenProps} /></motion.div>;
-      case "advisor": return <motion.div {...motionProps}><CropAdvisor {...screenProps} /></motion.div>;
-      case "diagnosis": return <motion.div {...motionProps}><PlantDiagnosis {...screenProps} /></motion.div>;
-      case "market": return <motion.div {...motionProps}><MarketScreen {...screenProps} /></motion.div>;
-      case "community": return <motion.div {...motionProps}><CommunityForum {...screenProps} languages={INDIAN_LANGUAGES} /></motion.div>;
-      case "weather": return <motion.div {...motionProps}><WeatherScreen {...screenProps} /></motion.div>;
-      case "news": return <motion.div {...motionProps}><NewsSchemes {...screenProps} /></motion.div>;
+      case "profile": return <motion.div {...anim}><ProfileScreen {...screenProps} /></motion.div>;
+      case "chatbot": return <motion.div {...anim}><ChatbotScreen {...screenProps} /></motion.div>;
+      case "calculator": return <motion.div {...anim}><FertilizerCalculator {...screenProps} /></motion.div>;
+      case "advisor": return <motion.div {...anim}><CropAdvisor {...screenProps} /></motion.div>;
+      case "diagnosis": return <motion.div {...anim}><PlantDiagnosis {...screenProps} /></motion.div>;
+      case "market": return <motion.div {...anim}><MarketScreen {...screenProps} /></motion.div>;
+      case "community": return <motion.div {...anim}><CommunityForum {...screenProps} languages={INDIAN_LANGUAGES} /></motion.div>;
+      case "weather": return <motion.div {...anim}><WeatherScreen {...screenProps} /></motion.div>;
+      case "news": return <motion.div {...anim}><NewsSchemes {...screenProps} /></motion.div>;
+
       default:
         return (
-          <motion.div {...motionProps}>
-            <Dashboard {...{ t, onScreenSelect: setScreen, sensorData, activeAlerts, profileData, isLoading }} />
+          <motion.div {...anim}>
+            <Dashboard
+              t={t}
+              onScreenSelect={navigate}
+              sensorData={sensorData}
+              activeAlerts={activeAlerts}
+              profileData={profileData}
+              isLoading={isLoading}
+            />
           </motion.div>
         );
     }
   };
 
+
   return (
-    <div
-      className="min-h-screen bg-gray-50"
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d1fae5' fill-opacity='0.4'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-      }}
-    >
+    <div className="min-h-screen bg-gray-50">
+
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <Toaster position="top-center" />
 
-        <header className="mb-8 p-4 sm:p-5 flex justify-between items-center bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl shadow-lg text-white">
+        {/* HEADER */}
+        <header className="mb-8 p-4 flex justify-between items-center bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl shadow-lg text-white">
+
           <div className="flex items-center gap-4">
             <Logo className="h-14 w-14" />
-            <div>
-              <h1 className="text-3xl font-bold">Kisan Mitra</h1>
-            </div>
+            <h1 className="text-3xl font-bold">Kisan Mitra</h1>
           </div>
-          <div className="flex items-center gap-3 sm:gap-4">
+
+          <div className="flex items-center gap-3">
+
             <select
               value={lang}
-              onChange={handleLanguageChange}
-              className="bg-white/20 border border-white/30 rounded-lg py-2 px-3 text-sm text-white focus:ring-2 focus:ring-white/50 outline-none appearance-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                backgroundPosition: 'right 0.5rem center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: '1.5em 1.5em',
-                paddingRight: '2.5rem',
-              }}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-white/20 border border-white/40 rounded-lg py-2 px-3 text-sm text-white"
             >
               {INDIAN_LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code} className="text-black">{l.name}</option>
+                <option key={l.code} value={l.code} className="text-black">
+                  {l.name}
+                </option>
               ))}
             </select>
+
             <button
-              onClick={() => setScreen("profile")}
-              className="p-2 rounded-full hover:bg-white/20 transition-colors"
-              title={t('action_profile')}
+              onClick={() => navigate("profile")}
+              className="p-2 rounded-full hover:bg-white/20"
             >
               <UserCircleIcon className="h-8 w-8" />
             </button>
+
           </div>
         </header>
 
+        {/* SCREEN CONTENT */}
         <main>
           <AnimatePresence mode="wait">{renderScreen()}</AnimatePresence>
         </main>
 
-        <div className="mt-20 border-t pt-12">
-          <Team />
-        </div>
+
       </div>
     </div>
   );
 }
 
 export default App;
-

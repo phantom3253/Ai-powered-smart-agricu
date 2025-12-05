@@ -2,25 +2,13 @@ import React, { useEffect, useState, useMemo } from "react";
 
 /**
  * WeatherScreen.jsx (Open-Meteo)
- * - Uses Open-Meteo (no API key) for forecast, hourly, and archive (history).
- * - Features:
- *    • GPS location detection
- *    • Current weather (temperature, wind, weathercode)
- *    • 16-day daily forecast (max/min temp, precipitation, uv)
- *    • Next 48-hour hourly forecast (temp, precip, wind, humidity where available)
- *    • Past 7-day daily mean temps (archive endpoint)
- *    • Inline SVG line chart for past 7 days
- *    • Clean dashboard UI (Tailwind)
- *
- * Notes:
- * - Open-Meteo endpoints used:
- *   • Forecast & current: api.open-meteo.com/v1/forecast
- *   • Historical archive: archive-api.open-meteo.com/v1/archive
- * - timezone=auto used so results are localized to the device location
+ * - NO REACT ROUTER
+ * - Accepts `onBack` prop (from App.jsx)
+ * - Always scrolls to top
+ * - Back button calls onBack()
  */
 
 const weatherCodeToText = (code) => {
-  // simplified mapping (Open-Meteo weathercode)
   const mapping = {
     0: "Clear",
     1: "Mainly clear",
@@ -56,93 +44,123 @@ const weatherCodeToText = (code) => {
 
 const weatherEmoji = (code) => {
   if (code === null || code === undefined) return "🌤️";
-  if ([0,1].includes(code)) return "☀️";
-  if ([2,3].includes(code)) return "⛅";
-  if ([45,48].includes(code)) return "🌫️";
-  if ([51,53,55,61,63,65,80,81,82].includes(code)) return "🌧️";
-  if ([71,73,75,85,86].includes(code)) return "❄️";
-  if ([95,96,99].includes(code)) return "⛈️";
+  if ([0, 1].includes(code)) return "☀️";
+  if ([2, 3].includes(code)) return "⛅";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
+  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈️";
   return "🌤️";
 };
 
-// small inline SVG line chart (past 7 daily mean temps)
 const SimpleLineChart = ({ points, labels }) => {
-  if (!points || points.length === 0) return <div className="text-sm text-gray-500">No historical data.</div>;
+  if (!points || points.length === 0)
+    return <div className="text-sm text-gray-500">No historical data.</div>;
 
   const W = 600;
   const H = 140;
   const pad = 24;
-  const ys = points.map(p => p.y).filter(v => v !== null && !isNaN(v));
-  if (ys.length === 0) return <div className="text-sm text-gray-500">No numeric historical data.</div>;
+
+  const ys = points.map((p) => p.y).filter((v) => v !== null && !isNaN(v));
+  if (ys.length === 0)
+    return <div className="text-sm text-gray-500">No numeric historical data.</div>;
+
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
   const span = Math.max(1, maxY - minY);
-  const stepX = (W - pad * 2) / (points.length - 1 || 1);
+  const stepX = (W - pad * 2) / ((points.length - 1) || 1);
 
-  const pathD = points.map((p, i) => {
-    const y = (p.y === null || isNaN(p.y))
-      ? (H - pad)
-      : (H - pad - ((p.y - minY) / span) * (H - pad * 2));
-    const x = pad + i * stepX;
-    return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
-  }).join(" ");
+  const pathD = points
+    .map((p, i) => {
+      const y =
+        p.y === null || isNaN(p.y)
+          ? H - pad
+          : H - pad - ((p.y - minY) / span) * (H - pad * 2);
+      const x = pad + i * stepX;
+      return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMinYMin meet">
       <g stroke="#eefaf0" strokeWidth="1">
         <line x1={pad} x2={W - pad} y1={pad} y2={pad} />
-        <line x1={pad} x2={W - pad} y1={H/2} y2={H/2} />
+        <line x1={pad} x2={W - pad} y1={H / 2} y2={H / 2} />
         <line x1={pad} x2={W - pad} y1={H - pad} y2={H - pad} />
       </g>
-      <path d={pathD} fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={pathD}
+        fill="none"
+        stroke="#059669"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       {points.map((pt, i) => {
-        const y = (pt.y === null || isNaN(pt.y))
-          ? (H - pad)
-          : (H - pad - ((pt.y - minY) / span) * (H - pad * 2));
+        const y =
+          pt.y === null || isNaN(pt.y)
+            ? H - pad
+            : H - pad - ((pt.y - minY) / span) * (H - pad * 2);
         const x = pad + i * stepX;
         return <circle key={i} cx={x} cy={y} r={4} fill="#047857" />;
       })}
       {labels.map((lab, i) => {
         const x = pad + i * stepX;
-        return <text key={i} x={x} y={H - 4} fontSize="10" textAnchor="middle" fill="#065f46">{lab}</text>;
+        return (
+          <text
+            key={i}
+            x={x}
+            y={H - 4}
+            fontSize="10"
+            textAnchor="middle"
+            fill="#065f46"
+          >
+            {lab}
+          </text>
+        );
       })}
     </svg>
   );
 };
 
+// ===== IMPORTANT: accept onBack prop here =====
 const WeatherScreen = ({ onBack }) => {
+  // Scroll to top when this component opens
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [coords, setCoords] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Open-Meteo data
   const [current, setCurrent] = useState(null);
-  const [daily, setDaily] = useState([]);     // daily forecast (16 days)
-  const [hourly, setHourly] = useState([]);   // hourly timeline
-  const [past7, setPast7] = useState([]);     // historical daily mean last 7 days
+  const [daily, setDaily] = useState([]);
+  const [hourly, setHourly] = useState([]);
+  const [past7, setPast7] = useState([]);
   const [locationName, setLocationName] = useState("");
 
-  // GET geolocation
+  // get location
   useEffect(() => {
     if (!navigator.geolocation) {
       setErrorMsg("Geolocation not supported by this browser.");
       setLoading(false);
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
       },
-      (err) => {
-        console.warn("Geolocation error", err);
-        setErrorMsg("Location permission denied or unavailable. Please allow location or enter coordinates.");
+      () => {
+        setErrorMsg("Location permission denied or unavailable.");
         setLoading(false);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }, []);
 
-  // Fetch forecast & current from Open-Meteo (16-day + hourly + current)
+  // Fetch forecast & current
   useEffect(() => {
     if (!coords) return;
 
@@ -152,25 +170,23 @@ const WeatherScreen = ({ onBack }) => {
 
       try {
         const { lat, lon } = coords;
-        // daily fields: max/min temp, precipitation sum, uv index
+
         const dailyFields = [
           "temperature_2m_max",
           "temperature_2m_min",
           "precipitation_sum",
           "uv_index_max",
-          "weathercode"
+          "weathercode",
         ].join(",");
 
-        // hourly fields: temperature, precipitation, relative humidity, wind speed
         const hourlyFields = [
           "temperature_2m",
           "relativehumidity_2m",
           "precipitation",
           "wind_speed_10m",
-          "weathercode"
+          "weathercode",
         ].join(",");
 
-        // forecast endpoint: 16 days default for daily
         const forecastUrl =
           `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
           `&daily=${encodeURIComponent(dailyFields)}` +
@@ -215,7 +231,7 @@ const WeatherScreen = ({ onBack }) => {
         }
         setDaily(dailyParsed);
 
-        // parse hourly (flatten into array of {time, temp, humidity, precip, wind, code})
+        // parse hourly
         const h = data.hourly || {};
         const hrTimes = h.time || [];
         const hourlyParsed = hrTimes.map((t, i) => ({
@@ -228,7 +244,6 @@ const WeatherScreen = ({ onBack }) => {
         }));
         setHourly(hourlyParsed);
 
-        // location name not provided by open-meteo directly; keep coords as fallback
         setLocationName(`Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
       } catch (err) {
         console.error("Forecast fetch error", err);
@@ -241,7 +256,7 @@ const WeatherScreen = ({ onBack }) => {
     fetchForecastAndCurrent();
   }, [coords]);
 
-  // Fetch past 7 days using archive endpoint (archive-api.open-meteo.com)
+  // Fetch past 7 days using archive endpoint
   useEffect(() => {
     if (!coords) return;
 
@@ -249,7 +264,7 @@ const WeatherScreen = ({ onBack }) => {
       try {
         setLoading(true);
         const { lat, lon } = coords;
-        // compute start & end date for last 7 days (excluding today) e.g. start = today-7, end = yesterday
+
         const now = new Date();
         const endDate = new Date(now);
         endDate.setDate(now.getDate() - 1); // yesterday
@@ -259,7 +274,6 @@ const WeatherScreen = ({ onBack }) => {
         const start = startDate.toISOString().split("T")[0];
         const end = endDate.toISOString().split("T")[0];
 
-        // daily mean temp (temperature_2m_mean). If not available, we can use max/min avg.
         const archiveDailyFields = ["temperature_2m_mean"].join(",");
 
         const url =
@@ -272,7 +286,6 @@ const WeatherScreen = ({ onBack }) => {
         const data = await res.json();
 
         if (!data || !data.daily) {
-          // fallback: if mean not available, compute average of max/min from daily arrays if present
           if (data?.daily?.temperature_2m_max && data?.daily?.temperature_2m_min) {
             const tmax = data.daily.temperature_2m_max;
             const tmin = data.daily.temperature_2m_min;
@@ -283,9 +296,8 @@ const WeatherScreen = ({ onBack }) => {
             }));
             setPast7(parsed);
           } else {
-            // give empty with placeholders
             const days = [];
-            const dt = new Date(startDate);
+            // const dt = new Date(startDate);
             for (let i = 0; i < 7; i++) {
               const dstr = new Date(startDate.getTime() + i * 24*60*60*1000).toISOString().split("T")[0];
               days.push({ date: dstr, temp: null });
@@ -301,7 +313,6 @@ const WeatherScreen = ({ onBack }) => {
         setPast7(parsed);
       } catch (err) {
         console.error("Archive fetch error", err);
-        // fallback: fill with nulls
         const tmp = [];
         const now = new Date();
         for (let i = 7; i >= 1; i--) {
@@ -329,10 +340,8 @@ const WeatherScreen = ({ onBack }) => {
     return past7.map((p, i) => ({ x: i, y: (p.temp == null ? null : Number(p.temp)) }));
   }, [past7]);
 
-  // forecast 16 days slice
   const forecast16 = daily.slice(0, 16);
 
-  // hourly next 48 hours
   const hourlyFuture = useMemo(() => {
     if (!hourly || hourly.length === 0) return [];
     const nowISO = new Date().toISOString();
@@ -359,6 +368,7 @@ const WeatherScreen = ({ onBack }) => {
             <p className="mt-3 text-gray-700">{errorMsg}</p>
             <div className="mt-4">
               <button onClick={() => window.location.reload()} className="px-4 py-2 bg-green-600 text-white rounded">Retry</button>
+              {/* use onBack prop */}
               <button onClick={onBack} className="ml-3 px-4 py-2 border rounded">Back</button>
             </div>
           </div>
@@ -371,12 +381,19 @@ const WeatherScreen = ({ onBack }) => {
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-green-50 to-white">
       <div className="max-w-6xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-green-700">🌦 Weather Dashboard</h1>
-          <div className="flex items-center gap-3">
-            <button onClick={onBack} className="px-4 py-2 bg-green-600 text-white rounded-lg">Back</button>
-          </div>
-        </header>
+       <header className="flex items-center justify-between mb-6">
+  <h1 className="text-3xl font-bold text-green-700">🌦 Weather Dashboard</h1>
+
+  <div className="flex items-center gap-3">
+    <button
+      onClick={onBack}
+      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition"
+    >
+      ← Back to Dashboard
+    </button>
+  </div>
+</header>
+
 
         {/* Current summary */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
